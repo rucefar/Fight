@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第7頁 - 關係五部曲紀錄</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        table.rel-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table.rel-table th,
+        table.rel-table td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: left;
+        }
+        table.rel-table th {
+            background: #f0f0f0;
+        }
+        table.rel-table input {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            padding: 4px;
+        }
+        .note {
+            font-size: 0.9em;
+            background: #fffff5;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="page6.html">上一頁</a>
+            <a href="home.html">首頁</a>
+            <a href="page8.html">下一頁</a>
+        </nav>
+        <h2>關係五部曲紀錄</h2>
+        <div class="note">★ 關係五部曲：認識、熟悉、喜歡、信任、鼓勵</div>
+        <table class="rel-table">
+            <thead>
+                <tr>
+                    <th style="width:5%">#</th>
+                    <th style="width:15%">日期</th>
+                    <th style="width:25%">主要話題</th>
+                    <th style="width:20%">產品示範</th>
+                    <th style="width:20%">講音</th>
+                    <th style="width:15%">輔銷資料</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 8 rows for recording relationship interactions -->
+                <tr>
+                    <td>1</td>
+                    <td><input type="date" data-key="rel_1_date"></td>
+                    <td><input type="text" data-key="rel_1_topic"></td>
+                    <td><input type="text" data-key="rel_1_demo"></td>
+                    <td><input type="text" data-key="rel_1_audio"></td>
+                    <td><input type="text" data-key="rel_1_material"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="date" data-key="rel_2_date"></td>
+                    <td><input type="text" data-key="rel_2_topic"></td>
+                    <td><input type="text" data-key="rel_2_demo"></td>
+                    <td><input type="text" data-key="rel_2_audio"></td>
+                    <td><input type="text" data-key="rel_2_material"></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><input type="date" data-key="rel_3_date"></td>
+                    <td><input type="text" data-key="rel_3_topic"></td>
+                    <td><input type="text" data-key="rel_3_demo"></td>
+                    <td><input type="text" data-key="rel_3_audio"></td>
+                    <td><input type="text" data-key="rel_3_material"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><input type="date" data-key="rel_4_date"></td>
+                    <td><input type="text" data-key="rel_4_topic"></td>
+                    <td><input type="text" data-key="rel_4_demo"></td>
+                    <td><input type="text" data-key="rel_4_audio"></td>
+                    <td><input type="text" data-key="rel_4_material"></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><input type="date" data-key="rel_5_date"></td>
+                    <td><input type="text" data-key="rel_5_topic"></td>
+                    <td><input type="text" data-key="rel_5_demo"></td>
+                    <td><input type="text" data-key="rel_5_audio"></td>
+                    <td><input type="text" data-key="rel_5_material"></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><input type="date" data-key="rel_6_date"></td>
+                    <td><input type="text" data-key="rel_6_topic"></td>
+                    <td><input type="text" data-key="rel_6_demo"></td>
+                    <td><input type="text" data-key="rel_6_audio"></td>
+                    <td><input type="text" data-key="rel_6_material"></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td><input type="date" data-key="rel_7_date"></td>
+                    <td><input type="text" data-key="rel_7_topic"></td>
+                    <td><input type="text" data-key="rel_7_demo"></td>
+                    <td><input type="text" data-key="rel_7_audio"></td>
+                    <td><input type="text" data-key="rel_7_material"></td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td><input type="date" data-key="rel_8_date"></td>
+                    <td><input type="text" data-key="rel_8_topic"></td>
+                    <td><input type="text" data-key="rel_8_demo"></td>
+                    <td><input type="text" data-key="rel_8_audio"></td>
+                    <td><input type="text" data-key="rel_8_material"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[data-key]');
+        inputs.forEach(function(input) {
+            const key = input.dataset.key;
+            const stored = localStorage.getItem(key);
+            if (stored) input.value = stored;
+            input.addEventListener('input', function() {
+                localStorage.setItem(key, input.value);
+            });
+        });
+    });
+    </script>
+</body>
+</html>

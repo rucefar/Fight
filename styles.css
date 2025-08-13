@@ -1,0 +1,174 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f8f8f8;
+    color: #333;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+nav a {
+    background: #0077cc;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+    margin: 5px;
+    font-size: 16px;
+}
+nav a:hover {
+    background: #005fa3;
+}
+.page-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+.thumbnail {
+    text-align: center;
+}
+.thumbnail img {
+    width: 200px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.thumbnail a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+.thumbnail span {
+    display: block;
+    margin-top: 8px;
+}
+
+/* Home page (cover) styles */
+.home-hero {
+    /* full height section with golden background */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #f9e4b7 0%, #e9c78f 100%);
+    color: #333;
+    text-align: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+.home-title {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 0;
+    line-height: 1.2;
+}
+.home-subtitle {
+    font-size: 4em;
+    font-weight: bold;
+    margin: 20px 0;
+    letter-spacing: 0.1em;
+}
+/* simple logo element with orbit ring */
+.logo {
+    position: relative;
+    display: inline-block;
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+.logo span {
+    position: relative;
+    z-index: 1;
+}
+.logo::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(20deg);
+    width: 160%;
+    height: 80%;
+    border: 3px solid rgba(0, 0, 0, 0.5);
+    border-radius: 50% / 60%;
+    z-index: 0;
+}
+.enter-btn {
+    background: #0077cc;
+    color: #fff;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-top: 20px;
+    display: inline-block;
+}
+.enter-btn:hover {
+    background: #005fa3;
+}
+/* Menu page styles */
+.menu-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+.menu-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+.menu-button {
+    background: #0077cc;
+    color: #fff;
+    padding: 14px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    min-width: 200px;
+    text-align: center;
+}
+.menu-button:hover {
+    background: #005fa3;
+}
+
+/* gold icon used in the guide page heading */
+.gold-icon {
+    width: 1em;
+    height: 1em;
+    background: #f1c40f;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.4em;
+    vertical-align: middle;
+}
+
+/* apply the same golden gradient background as the cover for menu page */
+.menu-body {
+    background: linear-gradient(135deg, #f9e4b7 0%, #e9c78f 100%);
+    min-height: 100vh;
+    color: #333;
+}

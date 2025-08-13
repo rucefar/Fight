@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第6頁 - 朋友名單</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        table.friend-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table.friend-table th,
+        table.friend-table td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: left;
+        }
+        table.friend-table th {
+            background: #f0f0f0;
+        }
+        table.friend-table input {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            padding: 4px;
+        }
+        .note {
+            font-size: 0.9em;
+            margin-top: 10px;
+            background: #fffff5;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="page5.html">上一頁</a>
+            <a href="home.html">首頁</a>
+            <a href="page7.html">下一頁</a>
+        </nav>
+        <h2>朋友名單</h2>
+        <p>名單如果沒有整理容易忘記，請在下表記錄你的朋友資料。</p>
+        <div class="note">
+            <p><strong>分類說明：</strong></p>
+            <p>A# 有進系統教室 — 積極參與、已進入團隊運作。</p>
+            <p>B# 有聯絡、聯繫、有回應 — 保持互動與跟進。</p>
+            <p>C# 很少聯繫 — 可透過早安圖、時事關心等方式維繫。</p>
+            <p>D# 窮組 — 記錄所在地區或縣市。</p>
+        </div>
+        <table class="friend-table">
+            <thead>
+                <tr>
+                    <th style="width:5%">#</th>
+                    <th style="width:20%">姓名</th>
+                    <th style="width:20%">電話</th>
+                    <th style="width:25%">初見面</th>
+                    <th style="width:30%">備註</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 21 rows -->
+                <!-- We'll generate rows manually for clarity -->
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" data-key="friend_1_name"></td>
+                    <td><input type="text" data-key="friend_1_phone"></td>
+                    <td><input type="text" data-key="friend_1_meet"></td>
+                    <td><input type="text" data-key="friend_1_note"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="text" data-key="friend_2_name"></td>
+                    <td><input type="text" data-key="friend_2_phone"></td>
+                    <td><input type="text" data-key="friend_2_meet"></td>
+                    <td><input type="text" data-key="friend_2_note"></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><input type="text" data-key="friend_3_name"></td>
+                    <td><input type="text" data-key="friend_3_phone"></td>
+                    <td><input type="text" data-key="friend_3_meet"></td>
+                    <td><input type="text" data-key="friend_3_note"></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><input type="text" data-key="friend_4_name"></td>
+                    <td><input type="text" data-key="friend_4_phone"></td>
+                    <td><input type="text" data-key="friend_4_meet"></td>
+                    <td><input type="text" data-key="friend_4_note"></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><input type="text" data-key="friend_5_name"></td>
+                    <td><input type="text" data-key="friend_5_phone"></td>
+                    <td><input type="text" data-key="friend_5_meet"></td>
+                    <td><input type="text" data-key="friend_5_note"></td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><input type="text" data-key="friend_6_name"></td>
+                    <td><input type="text" data-key="friend_6_phone"></td>
+                    <td><input type="text" data-key="friend_6_meet"></td>
+                    <td><input type="text" data-key="friend_6_note"></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td><input type="text" data-key="friend_7_name"></td>
+                    <td><input type="text" data-key="friend_7_phone"></td>
+                    <td><input type="text" data-key="friend_7_meet"></td>
+                    <td><input type="text" data-key="friend_7_note"></td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td><input type="text" data-key="friend_8_name"></td>
+                    <td><input type="text" data-key="friend_8_phone"></td>
+                    <td><input type="text" data-key="friend_8_meet"></td>
+                    <td><input type="text" data-key="friend_8_note"></td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td><input type="text" data-key="friend_9_name"></td>
+                    <td><input type="text" data-key="friend_9_phone"></td>
+                    <td><input type="text" data-key="friend_9_meet"></td>
+                    <td><input type="text" data-key="friend_9_note"></td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td><input type="text" data-key="friend_10_name"></td>
+                    <td><input type="text" data-key="friend_10_phone"></td>
+                    <td><input type="text" data-key="friend_10_meet"></td>
+                    <td><input type="text" data-key="friend_10_note"></td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td><input type="text" data-key="friend_11_name"></td>
+                    <td><input type="text" data-key="friend_11_phone"></td>
+                    <td><input type="text" data-key="friend_11_meet"></td>
+                    <td><input type="text" data-key="friend_11_note"></td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td><input type="text" data-key="friend_12_name"></td>
+                    <td><input type="text" data-key="friend_12_phone"></td>
+                    <td><input type="text" data-key="friend_12_meet"></td>
+                    <td><input type="text" data-key="friend_12_note"></td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td><input type="text" data-key="friend_13_name"></td>
+                    <td><input type="text" data-key="friend_13_phone"></td>
+                    <td><input type="text" data-key="friend_13_meet"></td>
+                    <td><input type="text" data-key="friend_13_note"></td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td><input type="text" data-key="friend_14_name"></td>
+                    <td><input type="text" data-key="friend_14_phone"></td>
+                    <td><input type="text" data-key="friend_14_meet"></td>
+                    <td><input type="text" data-key="friend_14_note"></td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td><input type="text" data-key="friend_15_name"></td>
+                    <td><input type="text" data-key="friend_15_phone"></td>
+                    <td><input type="text" data-key="friend_15_meet"></td>
+                    <td><input type="text" data-key="friend_15_note"></td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td><input type="text" data-key="friend_16_name"></td>
+                    <td><input type="text" data-key="friend_16_phone"></td>
+                    <td><input type="text" data-key="friend_16_meet"></td>
+                    <td><input type="text" data-key="friend_16_note"></td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td><input type="text" data-key="friend_17_name"></td>
+                    <td><input type="text" data-key="friend_17_phone"></td>
+                    <td><input type="text" data-key="friend_17_meet"></td>
+                    <td><input type="text" data-key="friend_17_note"></td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td><input type="text" data-key="friend_18_name"></td>
+                    <td><input type="text" data-key="friend_18_phone"></td>
+                    <td><input type="text" data-key="friend_18_meet"></td>
+                    <td><input type="text" data-key="friend_18_note"></td>
+                </tr>
+                <tr>
+                    <td>19</td>
+                    <td><input type="text" data-key="friend_19_name"></td>
+                    <td><input type="text" data-key="friend_19_phone"></td>
+                    <td><input type="text" data-key="friend_19_meet"></td>
+                    <td><input type="text" data-key="friend_19_note"></td>
+                </tr>
+                <tr>
+                    <td>20</td>
+                    <td><input type="text" data-key="friend_20_name"></td>
+                    <td><input type="text" data-key="friend_20_phone"></td>
+                    <td><input type="text" data-key="friend_20_meet"></td>
+                    <td><input type="text" data-key="friend_20_note"></td>
+                </tr>
+                <tr>
+                    <td>21</td>
+                    <td><input type="text" data-key="friend_21_name"></td>
+                    <td><input type="text" data-key="friend_21_phone"></td>
+                    <td><input type="text" data-key="friend_21_meet"></td>
+                    <td><input type="text" data-key="friend_21_note"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+    // 加載並儲存資料至 localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[data-key]');
+        inputs.forEach(function(input) {
+            const key = input.dataset.key;
+            // 初始化值
+            const stored = localStorage.getItem(key);
+            if (stored) input.value = stored;
+            // 設定輸入即存
+            input.addEventListener('input', function() {
+                localStorage.setItem(key, input.value);
+            });
+        });
+    });
+    </script>
+</body>
+</html>

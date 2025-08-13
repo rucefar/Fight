@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第2頁 - 黃金三個月 90 DAYS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+    <nav>
+        <a href="page1.html">上一頁</a>
+        <a href="home.html">首頁</a>
+        <a href="page3.html">下一頁</a>
+        <a href="#" id="rotateButton">旋轉</a>
+    </nav>
+    <h2>第2頁</h2>
+    <img id="pageImage" class="page-image" src="images/0E9DECDB-B883-4DE6-B397-94F440380C45.jpeg" alt="第2頁">
+    </div>
+    <script>
+    let rotation = 0;
+    document.getElementById("rotateButton").addEventListener("click", function(e) {
+        e.preventDefault();
+        rotation = (rotation + 90) % 360;
+        document.getElementById("pageImage").style.transform = `rotate(${rotation}deg)`;
+    });
+    </script>
+</body>
+</html>

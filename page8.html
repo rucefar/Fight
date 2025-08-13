@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第8頁 - 我的成功計劃</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .plan-section {
+            margin-bottom: 20px;
+        }
+        .plan-section h3 {
+            margin-bottom: 8px;
+        }
+        .plan-section ol {
+            margin-left: 20px;
+        }
+        .plan-section li {
+            margin-bottom: 4px;
+        }
+        .plan-section input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 4px;
+            margin-top: 2px;
+        }
+        .plan-section input[type="date"] {
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="page7.html">上一頁</a>
+            <a href="home.html">首頁</a>
+            <a href="page9.html">下一頁</a>
+        </nav>
+        <h2>我的成功計劃</h2>
+        <form>
+            <div class="plan-section">
+                <h3>我的夢想：</h3>
+                <ol>
+                    <li>
+                        <input type="text" data-key="plan_dream1" placeholder="夢想 1">
+                    </li>
+                    <li>
+                        <input type="text" data-key="plan_dream2" placeholder="夢想 2">
+                    </li>
+                    <li>
+                        <input type="text" data-key="plan_dream3" placeholder="夢想 3">
+                    </li>
+                </ol>
+            </div>
+            <div class="plan-section">
+                <h3>安麗創業計畫書中最吸引我的是：</h3>
+                <ol>
+                    <li><input type="text" data-key="plan_attract1" placeholder="吸引點 1"></li>
+                    <li><input type="text" data-key="plan_attract2" placeholder="吸引點 2"></li>
+                    <li><input type="text" data-key="plan_attract3" placeholder="吸引點 3"></li>
+                    <li><input type="text" data-key="plan_attract4" placeholder="吸引點 4"></li>
+                </ol>
+            </div>
+            <div class="plan-section">
+                <h3>我願意為我的夢想做哪些改變：</h3>
+                <ol>
+                    <li><input type="text" data-key="plan_change1" placeholder="改變 1"></li>
+                    <li><input type="text" data-key="plan_change2" placeholder="改變 2"></li>
+                    <li><input type="text" data-key="plan_change3" placeholder="改變 3"></li>
+                    <li><input type="text" data-key="plan_change4" placeholder="改變 4"></li>
+                    <li><input type="text" data-key="plan_change5" placeholder="改變 5"></li>
+                </ol>
+            </div>
+            <div class="plan-section">
+                <h3>日期：</h3>
+                <input type="date" data-key="plan_date">
+            </div>
+        </form>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[data-key]');
+        inputs.forEach(function(input) {
+            const key = input.dataset.key;
+            const stored = localStorage.getItem(key);
+            if (stored) input.value = stored;
+            input.addEventListener('input', function() {
+                localStorage.setItem(key, input.value);
+            });
+        });
+    });
+    </script>
+</body>
+</html>
