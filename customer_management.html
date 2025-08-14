@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶資料管理</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <!-- 上一頁連結回到事業版圖 -->
+            <a href="page9.html">上一頁</a>
+            <a href="home.html">首頁</a>
+        </nav>
+        <h2>客戶資料管理</h2>
+        <p>以下為已儲存的客戶名單，點擊姓名可檢視或編輯該客戶的資料。</p>
+        <table>
+            <thead>
+                <tr><th>#</th><th>姓名</th></tr>
+            </thead>
+            <tbody id="customerList">
+                <!-- populated via script -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+    (function() {
+        const listEl = document.getElementById('customerList');
+        // 移除先前測試用的資料（若存在）
+        if (localStorage.getItem('client-test')) {
+            localStorage.removeItem('client-test');
+        }
+        function loadCustomers() {
+            listEl.innerHTML = '';
+            // 取得所有 client- 開頭的 key
+            const keys = Object.keys(localStorage).filter(key => key.startsWith('client-'));
+            keys.sort();
+            // 預計顯示四行，若不足則補空白
+            for (let i = 0; i < 4; i++) {
+                const tr = document.createElement('tr');
+                const tdIndex = document.createElement('td');
+                tdIndex.textContent = i + 1;
+                const tdName = document.createElement('td');
+                if (keys[i]) {
+                    let data;
+                    try {
+                        data = JSON.parse(localStorage.getItem(keys[i]));
+                    } catch(e) {
+                        data = null;
+                    }
+                    const name = data && data.basicInfo && data.basicInfo.name ? data.basicInfo.name : keys[i].substring(7);
+                    const a = document.createElement('a');
+                    a.textContent = name || '未命名';
+                    a.href = 'page2.html?client=' + encodeURIComponent(name);
+                    tdName.appendChild(a);
+                } else {
+                    tdName.textContent = '';
+                }
+                tr.appendChild(tdIndex);
+                tr.appendChild(tdName);
+                listEl.appendChild(tr);
+            }
+        }
+        loadCustomers();
+    })();
+    </script>
+</body>
+</html>

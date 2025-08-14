@@ -10,12 +10,15 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            /* 固定欄寬，方便調整各欄寬度 */
+            table-layout: fixed;
         }
         table.rel-table th,
         table.rel-table td {
             border: 1px solid #ccc;
             padding: 6px;
             text-align: left;
+            overflow: hidden;
         }
         table.rel-table th {
             background: #f0f0f0;
@@ -25,6 +28,10 @@
             box-sizing: border-box;
             border: none;
             padding: 4px;
+        }
+        /* 將輔銷資料欄位放大一些，使輸入框更寬 */
+        table.rel-table th:nth-child(8), table.rel-table td:nth-child(8) {
+            width: 25%;
         }
         .note {
             font-size: 0.9em;
@@ -42,86 +49,106 @@
             <a href="page8.html">下一頁</a>
         </nav>
         <h2>關係五部曲紀錄</h2>
-        <div class="note">★ 關係五部曲：認識、熟悉、喜歡、信任、鼓勵</div>
+        <!-- 更新關係五部曲說明：最後一階為莫逆 -->
+        <div class="note">★ 關係五部曲：認識、熟悉、喜歡、信任、莫逆</div>
         <table class="rel-table">
             <thead>
                 <tr>
                     <th style="width:5%">#</th>
                     <th style="width:15%">日期</th>
-                    <th style="width:25%">主要話題</th>
-                    <th style="width:20%">產品示範</th>
-                    <th style="width:20%">講音</th>
+                    <th style="width:15%">關係度</th>
+                    <th style="width:15%">姓名</th>
+                    <th style="width:20%">主要話題</th>
+                    <th style="width:15%">產品示範</th>
+                    <th style="width:15%">錄音檔</th>
                     <th style="width:15%">輔銷資料</th>
                 </tr>
             </thead>
-            <tbody>
-                <!-- 8 rows for recording relationship interactions -->
-                <tr>
-                    <td>1</td>
-                    <td><input type="date" data-key="rel_1_date"></td>
-                    <td><input type="text" data-key="rel_1_topic"></td>
-                    <td><input type="text" data-key="rel_1_demo"></td>
-                    <td><input type="text" data-key="rel_1_audio"></td>
-                    <td><input type="text" data-key="rel_1_material"></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td><input type="date" data-key="rel_2_date"></td>
-                    <td><input type="text" data-key="rel_2_topic"></td>
-                    <td><input type="text" data-key="rel_2_demo"></td>
-                    <td><input type="text" data-key="rel_2_audio"></td>
-                    <td><input type="text" data-key="rel_2_material"></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td><input type="date" data-key="rel_3_date"></td>
-                    <td><input type="text" data-key="rel_3_topic"></td>
-                    <td><input type="text" data-key="rel_3_demo"></td>
-                    <td><input type="text" data-key="rel_3_audio"></td>
-                    <td><input type="text" data-key="rel_3_material"></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td><input type="date" data-key="rel_4_date"></td>
-                    <td><input type="text" data-key="rel_4_topic"></td>
-                    <td><input type="text" data-key="rel_4_demo"></td>
-                    <td><input type="text" data-key="rel_4_audio"></td>
-                    <td><input type="text" data-key="rel_4_material"></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td><input type="date" data-key="rel_5_date"></td>
-                    <td><input type="text" data-key="rel_5_topic"></td>
-                    <td><input type="text" data-key="rel_5_demo"></td>
-                    <td><input type="text" data-key="rel_5_audio"></td>
-                    <td><input type="text" data-key="rel_5_material"></td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td><input type="date" data-key="rel_6_date"></td>
-                    <td><input type="text" data-key="rel_6_topic"></td>
-                    <td><input type="text" data-key="rel_6_demo"></td>
-                    <td><input type="text" data-key="rel_6_audio"></td>
-                    <td><input type="text" data-key="rel_6_material"></td>
-                </tr>
-                <tr>
-                    <td>7</td>
-                    <td><input type="date" data-key="rel_7_date"></td>
-                    <td><input type="text" data-key="rel_7_topic"></td>
-                    <td><input type="text" data-key="rel_7_demo"></td>
-                    <td><input type="text" data-key="rel_7_audio"></td>
-                    <td><input type="text" data-key="rel_7_material"></td>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td><input type="date" data-key="rel_8_date"></td>
-                    <td><input type="text" data-key="rel_8_topic"></td>
-                    <td><input type="text" data-key="rel_8_demo"></td>
-                    <td><input type="text" data-key="rel_8_audio"></td>
-                    <td><input type="text" data-key="rel_8_material"></td>
-                </tr>
+            <tbody id="rel-table-body">
             </tbody>
         </table>
+        <script>
+        // 動態生成表格行並儲存到 localStorage
+        (function() {
+            const tbody = document.getElementById('rel-table-body');
+            const relOptions = ['認識','熟悉','喜歡','信任','莫逆'];
+            // 生成8行
+            for (let i = 1; i <= 8; i++) {
+                const tr = document.createElement('tr');
+                // 編號
+                const numTd = document.createElement('td');
+                numTd.textContent = i;
+                tr.appendChild(numTd);
+                // 日期
+                const dateTd = document.createElement('td');
+                const dateInput = document.createElement('input');
+                dateInput.type = 'date';
+                dateInput.dataset.key = `rel_${i}_date`;
+                dateTd.appendChild(dateInput);
+                tr.appendChild(dateTd);
+                // 關係度
+                const degTd = document.createElement('td');
+                const degSelect = document.createElement('select');
+                degSelect.dataset.key = `rel_${i}_degree`;
+                relOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    degSelect.appendChild(option);
+                });
+                degTd.appendChild(degSelect);
+                tr.appendChild(degTd);
+                // 姓名
+                const nameTd = document.createElement('td');
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.dataset.key = `rel_${i}_name`;
+                nameTd.appendChild(nameInput);
+                tr.appendChild(nameTd);
+                // 主要話題
+                const topicTd = document.createElement('td');
+                const topicInput = document.createElement('input');
+                topicInput.type = 'text';
+                topicInput.dataset.key = `rel_${i}_topic`;
+                topicTd.appendChild(topicInput);
+                tr.appendChild(topicTd);
+                // 產品示範
+                const demoTd = document.createElement('td');
+                const demoInput = document.createElement('input');
+                demoInput.type = 'text';
+                demoInput.dataset.key = `rel_${i}_demo`;
+                demoTd.appendChild(demoInput);
+                tr.appendChild(demoTd);
+                // 錄音檔
+                const audioTd = document.createElement('td');
+                const audioInput = document.createElement('input');
+                audioInput.type = 'text';
+                audioInput.dataset.key = `rel_${i}_audio`;
+                audioTd.appendChild(audioInput);
+                tr.appendChild(audioTd);
+                // 輔銷資料
+                const matTd = document.createElement('td');
+                const matInput = document.createElement('input');
+                matInput.type = 'text';
+                matInput.dataset.key = `rel_${i}_material`;
+                matTd.appendChild(matInput);
+                tr.appendChild(matTd);
+                tbody.appendChild(tr);
+            }
+            // 載入儲存的資料並設置監聽
+            const elements = tbody.querySelectorAll('input, select');
+            elements.forEach(el => {
+                const key = el.dataset.key;
+                const saved = localStorage.getItem(key);
+                if (saved) {
+                    el.value = saved;
+                }
+                el.addEventListener('change', () => {
+                    localStorage.setItem(key, el.value);
+                });
+            });
+        })();
+        </script>
     </div>
     <script>
     document.addEventListener('DOMContentLoaded', function() {

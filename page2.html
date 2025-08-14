@@ -1,29 +1,336 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>第2頁 - 黃金三個月 90 DAYS</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90天服務跟進紀錄表</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* custom table styling */
+.table-record {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 100%;
+}
+.table-record th, .table-record td {
+  border: 1px solid #aaa;
+  padding: 4px;
+  text-align: center;
+}
+fieldset {
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 4px;
+}
+legend {
+  padding: 0 0.5rem;
+  font-weight: bold;
+}
+.actions {
+  margin-top: 1rem;
+}
+.actions button {
+  margin-right: 0.5rem;
+  padding: 0.4rem 1rem;
+}
+
+/* 調整輸入欄寬度，方便點選與輸入 */
+fieldset input[type="text"], fieldset input[type="date"] {
+  width: 160px;
+  box-sizing: border-box;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-    <nav>
-        <a href="page1.html">上一頁</a>
-        <a href="home.html">首頁</a>
-        <a href="page3.html">下一頁</a>
-        <a href="#" id="rotateButton">旋轉</a>
-    </nav>
-    <h2>第2頁</h2>
-    <img id="pageImage" class="page-image" src="images/0E9DECDB-B883-4DE6-B397-94F440380C45.jpeg" alt="第2頁">
+<div class="container">
+<nav>
+    <!-- remove reference to deleted page1 -->
+    <a href="home.html">上一頁</a>
+    <a href="home.html">首頁</a>
+    <a href="page3.html">下一頁</a>
+</nav>
+<h2>90天服務跟進紀錄表</h2>
+<p>請填寫以下表格以跟進服務紀錄。</p>
+<form id="recordForm">
+    <fieldset>
+        <legend>基本資料</legend>
+        <label>姓名：<input type="text" id="name" required></label><br>
+        <label>生日：<input type="date" id="birthday"></label><br>
+        <label>加入日期：<input type="date" id="joinDate"></label><br>
+        <label>介紹人：<input type="text" id="introducer"></label>
+    </fieldset>
+    <fieldset>
+        <legend>新生小白</legend>
+        <label><input type="checkbox" id="a4Opp"> A4-OPP</label>
+        <label><input type="checkbox" id="fullOpp"> 完整OPP</label>
+        <label><input type="checkbox" id="assist"> 協助Am-Card</label>
+        <label><input type="checkbox" id="creditContract"> 信用卡綁約</label>
+        <label><input type="checkbox" id="selfOrder"> 會自己訂貨</label>
+    </fieldset>
+    <fieldset>
+        <legend>個人系列</legend>
+        <label><input type="checkbox" id="toothbrush"> 牙刷</label>
+        <label><input type="checkbox" id="toothpaste"> 牙膏</label>
+        <label><input type="checkbox" id="showerGel"> 沐浴露</label>
+        <label><input type="checkbox" id="deodorant"> 體香劑</label>
+        <label><input type="checkbox" id="mouthSpray"> 口噴</label>
+    </fieldset>
+    <!-- 新增其他系列 -->
+    <fieldset>
+        <legend>營養系列</legend>
+        <label><input type="checkbox" id="nutritionSurvey"> 營養評估問卷</label>
+        <label><input type="checkbox" id="nutritionBreakfast"> 營養早餐</label>
+        <label><input type="checkbox" id="traceability"> 全程追溯</label>
+        <label><input type="checkbox" id="digestiveEnzyme"> 消化酵素</label>
+        <label><input type="checkbox" id="lecithin"> 卵磷脂</label>
+        <label><input type="checkbox" id="fishOil"> 魚油</label>
+        <label><input type="checkbox" id="vitc"> 維他命C</label>
+        <label><input type="checkbox" id="calMag"> 鈣鎂片</label>
+        <label><input type="checkbox" id="vitaA"> 維他命A</label>
+    </fieldset>
+    <fieldset>
+        <legend>家用科技</legend>
+        <label><input type="checkbox" id="waterPurifier"> 淨水器</label>
+        <label><input type="checkbox" id="airCleaner"> 空氣清淨機</label>
+        <label><input type="checkbox" id="nonStickPan"> 不沾鍋</label>
+        <label><input type="checkbox" id="goldenPan"> 金鍋</label>
+    </fieldset>
+    <fieldset>
+        <legend>家用清潔</legend>
+        <label><input type="checkbox" id="loc"> LOC</label>
+        <label><input type="checkbox" id="sa8"> SA8</label>
+        <label><input type="checkbox" id="dishWash"> 洗碟精</label>
+        <label><input type="checkbox" id="scrubber"> 金剛刷</label>
+    </fieldset>
+    <fieldset>
+        <legend>Artistry</legend>
+        <label><input type="checkbox" id="ccCream"> CC霜/紫外燈</label>
+        <label><input type="checkbox" id="orangeBottle"> 小橘瓶/碘酒</label>
+        <label><input type="checkbox" id="makeupRemover"> 卸妝乳</label>
+    </fieldset>
+    <fieldset>
+        <legend>長客計劃</legend>
+        <!-- 將五個輸入框排成一行，並保持間距 -->
+        <div style="display: flex; flex-wrap: nowrap; gap: 8px;">
+            <input type="text" id="longPlan1" placeholder="計劃 1" style="flex:1;">
+            <input type="text" id="longPlan2" placeholder="計劃 2" style="flex:1;">
+            <input type="text" id="longPlan3" placeholder="計劃 3" style="flex:1;">
+            <input type="text" id="longPlan4" placeholder="計劃 4" style="flex:1;">
+            <input type="text" id="longPlan5" placeholder="計劃 5" style="flex:1;">
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>跟進計劃</legend>
+        <table class="table-record">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>營養讀書會</th>
+                    <th>閱讀分享會</th>
+                    <th>U40</th>
+                    <th>健管45</th>
+                    <th>現金流</th>
+                    <th>45秒講座</th>
+                    <th>商業午餐</th>
+                </tr>
+            </thead>
+            <tbody id="planTableBody">
+            </tbody>
+        </table>
+    </fieldset>
+    <!-- 參與會議區塊 -->
+    <fieldset>
+        <legend>參與會議</legend>
+        <table class="table-record">
+            <thead>
+                <tr>
+                    <th>九九成法</th>
+                    <th>檢核日期</th>
+                    <th>九九成法</th>
+                    <th>檢核日期</th>
+                    <th>九九成法</th>
+                    <th>檢核日期</th>
+                </tr>
+            </thead>
+            <tbody id="meetingTableBody">
+            </tbody>
+        </table>
+    </fieldset>
+</form>
+    <div class="actions">
+        <!-- 將儲存與新增按鈕的事件改為內嵌 onclick，並移除除錯 alert -->
+        <button type="button" id="saveBtn" onclick="saveRecord()">儲存</button>
+        <button type="button" id="addBtn" onclick="addRecord()">新增</button>
     </div>
-    <script>
-    let rotation = 0;
-    document.getElementById("rotateButton").addEventListener("click", function(e) {
-        e.preventDefault();
-        rotation = (rotation + 90) % 360;
-        document.getElementById("pageImage").style.transform = `rotate(${rotation}deg)`;
-    });
-    </script>
+</div>
+<script>
+    // 新版表單初始化、載入及儲存邏輯
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientParam = urlParams.get('client');
+        const form = document.getElementById('recordForm');
+        const planTableBody = document.getElementById('planTableBody');
+        const meetingTableBody = document.getElementById('meetingTableBody');
+        // 產生跟進計劃表格：8 行 x 7 欄 (不含索引欄)
+        function initPlanTable() {
+            // 使用勾選框替代下拉選單
+            const planKeys = ['nutritionBook','readingShare','u40','health45','cashflow','lecture45','businessLunch'];
+            for (let i = 1; i <= 8; i++) {
+                const tr = document.createElement('tr');
+                const tdIdx = document.createElement('td');
+                tdIdx.textContent = i;
+                tr.appendChild(tdIdx);
+                planKeys.forEach((key) => {
+                    const td = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.dataset.row = i;
+                    checkbox.dataset.col = key;
+                    // 輸入時自動儲存
+                    checkbox.addEventListener('change', autoSaveField);
+                    td.appendChild(checkbox);
+                    tr.appendChild(td);
+                });
+                planTableBody.appendChild(tr);
+            }
+        }
+        // 產生參與會議表格
+        function initMeetingTable() {
+            // 使用文字輸入框取代下拉選單
+            const tasks1 = ['新人起步30小時','和上線主動聯繫','參加家庭聚會','參加中心聚會','會自己訂貨','3分鐘自我介紹','分享3族群健康管理','回答異議','營養早餐示範','15分鐘七種產品介紹示範','淨水器示範','空氣清淨機示範'];
+            const tasks2 = ['會講OPP制度','成為專業班成員','會導覽體驗館','跟隨上線領導人','跟隨海外市場','銷售領導人和會議','建立20個優質顧客','開始零售產品','開始辦家庭聚會','學會社群推薦','承擔社群工作人員','名單分類'];
+            const tasks3 = ['紀錄OPP百戰圖','紀錄90天跟進表','成為健管教練','嘉年華講師','現金流銀行家','上9%初階','上12%','上15%(銅章)','上18%','上銀章','上金章','上白金'];
+            for (let i = 0; i < 12; i++) {
+                const tr = document.createElement('tr');
+                const groups = [
+                    { task: tasks1[i], col: 'g1' },
+                    { task: tasks2[i], col: 'g2' },
+                    { task: tasks3[i], col: 'g3' }
+                ];
+                groups.forEach((grp) => {
+                    const tdTask = document.createElement('td');
+                    tdTask.textContent = grp.task;
+                    tr.appendChild(tdTask);
+                    const tdInput = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.dataset.row = (i + 1);
+                    input.dataset.group = grp.col;
+                    // 自動儲存輸入
+                    input.addEventListener('input', autoSaveField);
+                    tdInput.appendChild(input);
+                    tr.appendChild(tdInput);
+                });
+                meetingTableBody.appendChild(tr);
+            }
+        }
+        initPlanTable();
+        initMeetingTable();
+        // 載入既有資料
+        function loadData(name) {
+            try {
+                const data = JSON.parse(localStorage.getItem('client-' + name));
+                if (!data) return;
+                document.getElementById('name').value = data.basicInfo.name || '';
+                document.getElementById('birthday').value = data.basicInfo.birthday || '';
+                document.getElementById('joinDate').value = data.basicInfo.joinDate || '';
+                document.getElementById('introducer').value = data.basicInfo.introducer || '';
+                const checks = data.checks || {};
+                const checkIds = ['a4Opp','fullOpp','assist','creditContract','selfOrder',
+                                  'toothbrush','toothpaste','showerGel','deodorant','mouthSpray',
+                                  'nutritionSurvey','nutritionBreakfast','traceability','digestiveEnzyme','lecithin',
+                                  'fishOil','vitc','calMag','vitaA',
+                                  'waterPurifier','airCleaner','nonStickPan','goldenPan',
+                                  'loc','sa8','dishWash','scrubber',
+                                  'ccCream','orangeBottle','makeupRemover'];
+                checkIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.checked = !!checks[id];
+                });
+                if (data.longPlan) {
+                    ['longPlan1','longPlan2','longPlan3','longPlan4','longPlan5'].forEach((id, idx) => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = data.longPlan[idx] || '';
+                    });
+                }
+                const plan = data.plan || {};
+                // 設定跟進計劃勾選狀態
+                planTableBody.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    const key = 'row' + cb.dataset.row + '_' + cb.dataset.col;
+                    cb.checked = !!plan[key];
+                });
+                const meeting = data.meeting || {};
+                // 設定參與會議輸入值
+                meetingTableBody.querySelectorAll('input[type="text"]').forEach(inp => {
+                    const key = 'row' + inp.dataset.row + '_' + inp.dataset.group;
+                    if (meeting.hasOwnProperty(key)) {
+                        inp.value = meeting[key];
+                    }
+                });
+            } catch(e) {}
+        }
+        if (clientParam) {
+            loadData(clientParam);
+        }
+        // 收集表單資料
+        function collectData() {
+            const basicInfo = {
+                name: document.getElementById('name').value.trim(),
+                birthday: document.getElementById('birthday').value,
+                joinDate: document.getElementById('joinDate').value,
+                introducer: document.getElementById('introducer').value.trim()
+            };
+            const checks = {};
+            document.querySelectorAll('input[type="checkbox"]').forEach(ch => {
+                checks[ch.id] = ch.checked;
+            });
+            const longPlanVals = [];
+            ['longPlan1','longPlan2','longPlan3','longPlan4','longPlan5'].forEach(id => {
+                const v = document.getElementById(id).value.trim();
+                longPlanVals.push(v);
+            });
+            const plan = {};
+            // 收集跟進計劃：勾選框狀態 true/false
+            planTableBody.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                const key = 'row' + cb.dataset.row + '_' + cb.dataset.col;
+                plan[key] = cb.checked;
+            });
+            const meeting = {};
+            // 收集參與會議：輸入文字
+            meetingTableBody.querySelectorAll('input[type="text"]').forEach(inp => {
+                const key = 'row' + inp.dataset.row + '_' + inp.dataset.group;
+                meeting[key] = inp.value.trim();
+            });
+            return { basicInfo, checks, longPlan: longPlanVals, plan, meeting };
+        }
+        window.saveRecord = function saveRecord() {
+            const data = collectData();
+            if (!data.basicInfo.name) {
+                alert('請輸入姓名');
+                return;
+            }
+            localStorage.setItem('client-' + data.basicInfo.name, JSON.stringify(data));
+            alert('已儲存');
+        };
+        window.addRecord = function addRecord() {
+            saveRecord();
+            form.reset();
+            // 清除跟進計劃的勾選框
+            planTableBody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            // 清除參與會議的輸入框
+            meetingTableBody.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
+            window.location.href = 'page2.html';
+        };
+
+        // 自動儲存：當使用者對跟進計劃或參與會議輸入框進行操作時，自動將資料保存到 localStorage
+        function autoSaveField() {
+            const currentName = document.getElementById('name').value.trim();
+            if (!currentName) return;
+            const data = collectData();
+            localStorage.setItem('client-' + currentName, JSON.stringify(data));
+        }
+    })();
+</script>
 </body>
 </html>
