@@ -40,7 +40,7 @@ fieldset input[type="text"], fieldset input[type="date"] {
   width: 160px;
   box-sizing: border-box;
 }
-/* 讓寬大的表格在小螢幕上可以橫向滾動 */
+/* 讓寬大的表格在小螢幕上可以橫向滾動：基礎類別已被 table-scroll 取代，但保留 scrollable 以兼容舊代碼 */
 .scrollable {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -98,8 +98,8 @@ fieldset.basic-info input[type="email"] {
             box-sizing: border-box;
         }
 
-        /* 使滾動區塊內的表格寬度由內容決定，啟用水平捲動 */
-        .scrollable {
+/* 使滾動區塊內的表格寬度由內容決定，啟用水平捲動 */
+.scrollable {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
@@ -108,6 +108,41 @@ fieldset.basic-info input[type="email"] {
             width: max-content;
             min-width: 800px;
             max-width: none;
+            display: table;
+            table-layout: auto;
+        }
+
+        /* 新增 table-scroll 類別，用於水平滾動表格。此類別覆蓋原有寬度設定，使內容超出時出現橫向滾動條 */
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            min-width: 0;
+            overflow-y: hidden;
+        }
+        .table-scroll > table {
+            display: table;
+            width: max-content;
+            min-width: 720px;
+            max-width: none;
+            border-collapse: collapse;
+        }
+        .table-scroll th,
+        .table-scroll td {
+            white-space: nowrap;
+            padding: 6px 8px;
+            font-size: 14px;
+        }
+        @media (max-width: 480px) {
+            .table-scroll th,
+            .table-scroll td {
+                padding: 6px 6px;
+                font-size: 13px;
+            }
+        }
+        /* 確保欄位在 flex 容器內可以縮放 */
+        .wide-fieldset {
+            min-width: 0;
         }
 </style>
 </head>
@@ -202,8 +237,8 @@ fieldset.basic-info input[type="email"] {
     </fieldset>
     <fieldset class="wide-fieldset">
         <legend>跟進計劃</legend>
-        <div class="scrollable">
-        <table class="table-record" style="min-width:800px;">
+        <div class="table-scroll">
+        <table class="table-record">
             <thead>
                 <tr>
                     <th>#</th>
@@ -224,8 +259,8 @@ fieldset.basic-info input[type="email"] {
     <!-- 參與會議區塊 -->
     <fieldset class="wide-fieldset">
         <legend>參與會議</legend>
-        <div class="scrollable">
-        <table class="table-record" style="min-width:800px;">
+        <div class="table-scroll">
+        <table class="table-record">
             <thead>
                 <tr>
                     <th>九九成法</th>

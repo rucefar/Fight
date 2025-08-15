@@ -39,10 +39,10 @@
         .sys-graph {
             position: relative;
             margin: 20px auto;
-            /* 寬度足以容納所有節點 */
-            width: 600px;
-            /* 高度留足夠空間給白金圈列 */
-            min-height: 420px;
+            /* 調整寬度以容納右側垂直排列的白金節點列 */
+            width: 700px;
+            /* 調整高度以容納六個白金節點的縱向排列 */
+            min-height: 450px;
         }
         .sys-graph .circle {
             position: absolute;
@@ -64,9 +64,15 @@
             transform-origin: 0 0;
             z-index: 1;
         }
-        /* 調整白金節點列的上下間距 */
+        /* 白金節點列設定：垂直排列並留出節點間距 */
+        .sys-graph .platinum-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        /* 重置白金節點的外距，使用 gap 控制間距 */
         .sys-graph .platinum-col .circle {
-            margin-top: 8px;
+            margin: 0;
         }
     </style>
 </head>
@@ -143,23 +149,30 @@
             </ul>
             <!-- 互動式領導網路圖示 -->
             <div class="sys-graph" id="sysGraph">
-                <!-- 主節點 -->
-                <div id="nodeA" class="circle" style="left: 0px; top: 90px; width: 80px; height: 80px;">A 白金</div>
-                <div id="nodeB" class="circle" style="left: 150px; top: 90px; width: 80px; height: 80px;">B 翡翠</div>
-                <div id="nodeC" class="circle" style="left: 300px; top: 90px; width: 80px; height: 80px;">C 鑽石</div>
-                <!-- 右側白金節點列 -->
-                <div class="platinum-col" style="position:absolute; left: 450px; top: 20px;">
-                    <div id="p1" class="circle" style="width: 70px; height: 70px;">白金</div>
-                    <div id="p2" class="circle" style="width: 70px; height: 70px;">白金</div>
-                    <div id="p3" class="circle" style="width: 70px; height: 70px;">白金</div>
-                    <div id="p4" class="circle" style="width: 70px; height: 70px;">白金</div>
-                    <div id="p5" class="circle" style="width: 70px; height: 70px;">白金</div>
-                    <div id="p6" class="circle" style="width: 70px; height: 70px;">白金</div>
+                <!-- 主節點：A、B、C 置於同一水平線，垂直座標使其位於容器中部 -->
+                <div id="nodeA" class="circle" style="left: 0px; top: 185px; width: 80px; height: 80px;">A 白金</div>
+                <div id="nodeB" class="circle" style="left: 150px; top: 185px; width: 80px; height: 80px;">B 翡翠</div>
+                <div id="nodeC" class="circle" style="left: 300px; top: 185px; width: 80px; height: 80px;">C 鑽石</div>
+                <!-- B 節點上、下各一個白金節點 -->
+                <div id="nodeBUp" class="circle" style="left: 150px; top: 85px; width: 60px; height: 60px;">白金</div>
+                <div id="nodeBDown" class="circle" style="left: 150px; top: 285px; width: 60px; height: 60px;">白金</div>
+                <!-- 右側白金節點縱向排列：從 C 右側延伸出六個白金節點 -->
+                <div class="platinum-col" style="position:absolute; left: 420px; top: 20px;">
+                    <div id="p1" class="circle" style="width: 60px; height: 60px;">白金</div>
+                    <div id="p2" class="circle" style="width: 60px; height: 60px;">白金</div>
+                    <div id="p3" class="circle" style="width: 60px; height: 60px;">白金</div>
+                    <div id="p4" class="circle" style="width: 60px; height: 60px;">白金</div>
+                    <div id="p5" class="circle" style="width: 60px; height: 60px;">白金</div>
+                    <div id="p6" class="circle" style="width: 60px; height: 60px;">白金</div>
                 </div>
                 <!-- 線段使用 data-from 和 data-to 屬性自動定位 -->
+                <!-- 水平連線：A → B → C -->
                 <div class="line" data-from="nodeA" data-to="nodeB"></div>
                 <div class="line" data-from="nodeB" data-to="nodeC"></div>
-                <!-- 連接 C 到每個白金節點 -->
+                <!-- 垂直連線：B → 上下白金 -->
+                <div class="line" data-from="nodeB" data-to="nodeBUp"></div>
+                <div class="line" data-from="nodeB" data-to="nodeBDown"></div>
+                <!-- C 連接到每個右側白金節點 -->
                 <div class="line" data-from="nodeC" data-to="p1"></div>
                 <div class="line" data-from="nodeC" data-to="p2"></div>
                 <div class="line" data-from="nodeC" data-to="p3"></div>
