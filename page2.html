@@ -44,6 +44,24 @@ fieldset input[type="text"], fieldset input[type="date"] {
 .scrollable {
   overflow-x: auto;
 }
+
+/* 基本資料欄位：使標籤與輸入框垂直置中對齊 */
+fieldset.basic-info label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+fieldset.basic-info label input {
+  margin-left: 4px;
+}
+
+/* 寬內容區塊 legend 置中顯示 */
+.wide-fieldset legend {
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -57,7 +75,7 @@ fieldset input[type="text"], fieldset input[type="date"] {
 <h2>90天服務跟進紀錄表</h2>
 <p>請填寫以下表格以跟進服務紀錄。</p>
 <form id="recordForm">
-    <fieldset>
+    <fieldset class="basic-info">
         <legend>基本資料</legend>
         <label>姓名：<input type="text" id="name" required></label><br>
         <label>生日：<input type="date" id="birthday"></label><br>
@@ -93,14 +111,14 @@ fieldset input[type="text"], fieldset input[type="date"] {
         <label><input type="checkbox" id="calMag"> 鈣鎂片</label>
         <label><input type="checkbox" id="vitaA"> 維他命A</label>
     </fieldset>
-    <fieldset>
+    <fieldset class="wide-fieldset">
         <legend>家用科技</legend>
         <label><input type="checkbox" id="waterPurifier"> 淨水器</label>
         <label><input type="checkbox" id="airCleaner"> 空氣清淨機</label>
         <label><input type="checkbox" id="nonStickPan"> 不沾鍋</label>
         <label><input type="checkbox" id="goldenPan"> 金鍋</label>
     </fieldset>
-    <fieldset>
+    <fieldset class="wide-fieldset">
         <legend>家用清潔</legend>
         <label><input type="checkbox" id="loc"> LOC</label>
         <label><input type="checkbox" id="sa8"> SA8</label>
@@ -113,20 +131,21 @@ fieldset input[type="text"], fieldset input[type="date"] {
         <label><input type="checkbox" id="orangeBottle"> 小橘瓶/碘酒</label>
         <label><input type="checkbox" id="makeupRemover"> 卸妝乳</label>
     </fieldset>
-    <fieldset>
+    <fieldset class="wide-fieldset">
         <legend>長客計劃</legend>
-        <!-- 將五個輸入框排成一行，並保持間距 -->
-        <div class="scrollable">
-            <div style="display: flex; flex-wrap: nowrap; gap: 8px; min-width: 500px;">
-                <input type="text" id="longPlan1" placeholder="計劃 1" style="flex:1;">
-                <input type="text" id="longPlan2" placeholder="計劃 2" style="flex:1;">
-                <input type="text" id="longPlan3" placeholder="計劃 3" style="flex:1;">
-                <input type="text" id="longPlan4" placeholder="計劃 4" style="flex:1;">
-                <input type="text" id="longPlan5" placeholder="計劃 5" style="flex:1;">
-            </div>
+        <!-- 將輸入欄位排成二欄四列 -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+            <input type="text" id="longPlan1" placeholder="計劃 1">
+            <input type="text" id="longPlan2" placeholder="計劃 2">
+            <input type="text" id="longPlan3" placeholder="計劃 3">
+            <input type="text" id="longPlan4" placeholder="計劃 4">
+            <input type="text" id="longPlan5" placeholder="計劃 5">
+            <input type="text" id="longPlan6" placeholder="計劃 6">
+            <input type="text" id="longPlan7" placeholder="計劃 7">
+            <input type="text" id="longPlan8" placeholder="計劃 8">
         </div>
     </fieldset>
-    <fieldset>
+    <fieldset class="wide-fieldset">
         <legend>跟進計劃</legend>
         <div class="scrollable">
         <table class="table-record" style="min-width:800px;">
@@ -148,7 +167,7 @@ fieldset input[type="text"], fieldset input[type="date"] {
         </div>
     </fieldset>
     <!-- 參與會議區塊 -->
-    <fieldset>
+    <fieldset class="wide-fieldset">
         <legend>參與會議</legend>
         <div class="scrollable">
         <table class="table-record" style="min-width:800px;">
@@ -262,7 +281,8 @@ fieldset input[type="text"], fieldset input[type="date"] {
                     if (el) el.checked = !!checks[id];
                 });
                 if (data.longPlan) {
-                    ['longPlan1','longPlan2','longPlan3','longPlan4','longPlan5'].forEach((id, idx) => {
+                    const ids = ['longPlan1','longPlan2','longPlan3','longPlan4','longPlan5','longPlan6','longPlan7','longPlan8'];
+                    ids.forEach((id, idx) => {
                         const el = document.getElementById(id);
                         if (el) el.value = data.longPlan[idx] || '';
                     });
@@ -299,7 +319,7 @@ fieldset input[type="text"], fieldset input[type="date"] {
                 checks[ch.id] = ch.checked;
             });
             const longPlanVals = [];
-            ['longPlan1','longPlan2','longPlan3','longPlan4','longPlan5'].forEach(id => {
+            ['longPlan1','longPlan2','longPlan3','longPlan4','longPlan5','longPlan6','longPlan7','longPlan8'].forEach(id => {
                 const v = document.getElementById(id).value.trim();
                 longPlanVals.push(v);
             });
