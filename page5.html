@@ -34,6 +34,39 @@
             padding-left: 0;
             margin-left: 0;
         }
+
+        /* 互動式領導網路圖示樣式 */
+        .sys-graph {
+            position: relative;
+            margin: 20px auto;
+            /* 寬度足以容納所有節點 */
+            width: 600px;
+            min-height: 250px;
+        }
+        .sys-graph .circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid #0077cc;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+        .sys-graph .line {
+            position: absolute;
+            height: 2px;
+            background: #0077cc;
+            transform-origin: 0 0;
+            z-index: 1;
+        }
+        /* 調整白金節點列的上下間距 */
+        .sys-graph .platinum-col .circle {
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -97,7 +130,7 @@
                         <li>平均 6 ～ 10 萬收入／月。</li>
                     </ul>
                 </li>
-                <li><strong>可超越（公平性）：</strong>
+                <li style="margin-top:1em;"><strong>可超越（公平性）：</strong>
                     <ul>
                         <li>A：6 / 12 月 × 50 萬 → 白金 = 50 ~ 140 萬／年薪。</li>
                         <li>B：3 × 白金 → 翡翠：海外旅遊 1 次（經濟艙），年薪約 250 萬。</li>
@@ -107,44 +140,80 @@
                 <li><strong>可世襲：</strong>世世代代無條件繼承，努力不白費。</li>
                 <li><strong>可全球年終分紅計畫：</strong>翡翠、鑽石年終獎金全球聯網計算。</li>
             </ul>
-            <!-- 簡化的領導網路圖示 -->
-            <svg class="network-diagram" viewBox="0 0 400 250">
-                <!-- 主幹 -->
-                <line x1="50" y1="125" x2="150" y2="125" stroke="#0077cc" stroke-width="2" />
-                <line x1="150" y1="125" x2="250" y2="125" stroke="#0077cc" stroke-width="2" />
+            <!-- 互動式領導網路圖示 -->
+            <div class="sys-graph" id="sysGraph">
                 <!-- 主節點 -->
-                <circle cx="50" cy="125" r="20" fill="none" stroke="#0077cc" stroke-width="2" />
-                <text x="50" y="130" text-anchor="middle" font-size="11">A 白金</text>
-                <circle cx="150" cy="125" r="20" fill="none" stroke="#0077cc" stroke-width="2" />
-                <text x="150" y="130" text-anchor="middle" font-size="11">B 翡翠</text>
-                <circle cx="250" cy="125" r="20" fill="none" stroke="#0077cc" stroke-width="2" />
-                <text x="250" y="130" text-anchor="middle" font-size="11">C 鑽石</text>
-                <!-- 外圍白金節點 -->
-                <!-- using positions spread around C on the right -->
-                <g>
-                    <line x1="250" y1="125" x2="320" y2="65" stroke="#0077cc" stroke-width="1.5" />
-                    <circle cx="320" cy="65" r="15" fill="none" stroke="#0077cc" stroke-width="1.5" />
-                    <text x="320" y="70" text-anchor="middle" font-size="9">白金</text>
-
-                    <line x1="250" y1="125" x2="320" y2="95" stroke="#0077cc" stroke-width="1.5" />
-                    <circle cx="320" cy="95" r="15" fill="none" stroke="#0077cc" stroke-width="1.5" />
-                    <text x="320" y="100" text-anchor="middle" font-size="9">白金</text>
-
-                    <line x1="250" y1="125" x2="320" y2="125" stroke="#0077cc" stroke-width="1.5" />
-                    <circle cx="320" cy="125" r="15" fill="none" stroke="#0077cc" stroke-width="1.5" />
-                    <text x="320" y="130" text-anchor="middle" font-size="9">白金</text>
-
-                    <line x1="250" y1="125" x2="320" y2="155" stroke="#0077cc" stroke-width="1.5" />
-                    <circle cx="320" cy="155" r="15" fill="none" stroke="#0077cc" stroke-width="1.5" />
-                    <text x="320" y="160" text-anchor="middle" font-size="9">白金</text>
-
-                    <line x1="250" y1="125" x2="320" y2="185" stroke="#0077cc" stroke-width="1.5" />
-                    <circle cx="320" cy="185" r="15" fill="none" stroke="#0077cc" stroke-width="1.5" />
-                    <text x="320" y="190" text-anchor="middle" font-size="9">白金</text>
-                </g>
-            </svg>
+                <div id="nodeA" class="circle" style="left: 0px; top: 90px; width: 80px; height: 80px;">A 白金</div>
+                <div id="nodeB" class="circle" style="left: 150px; top: 90px; width: 80px; height: 80px;">B 翡翠</div>
+                <div id="nodeC" class="circle" style="left: 300px; top: 90px; width: 80px; height: 80px;">C 鑽石</div>
+                <!-- 右側白金節點列 -->
+                <div class="platinum-col" style="position:absolute; left: 450px; top: 30px;">
+                    <div id="p1" class="circle" style="width: 70px; height: 70px;">白金</div>
+                    <div id="p2" class="circle" style="width: 70px; height: 70px;">白金</div>
+                    <div id="p3" class="circle" style="width: 70px; height: 70px;">白金</div>
+                    <div id="p4" class="circle" style="width: 70px; height: 70px;">白金</div>
+                    <div id="p5" class="circle" style="width: 70px; height: 70px;">白金</div>
+                </div>
+                <!-- 線段使用 data-from 和 data-to 屬性自動定位 -->
+                <div class="line" data-from="nodeA" data-to="nodeB"></div>
+                <div class="line" data-from="nodeB" data-to="nodeC"></div>
+                <!-- 連接 C 到每個白金節點 -->
+                <div class="line" data-from="nodeC" data-to="p1"></div>
+                <div class="line" data-from="nodeC" data-to="p2"></div>
+                <div class="line" data-from="nodeC" data-to="p3"></div>
+                <div class="line" data-from="nodeC" data-to="p4"></div>
+                <div class="line" data-from="nodeC" data-to="p5"></div>
+            </div>
             <p style="text-align:center;font-style:italic;margin-top:0;">不是先加入先贏，而是會做才會贏。</p>
         </section>
     </div>
+    <!-- 動態定位線段至圓圈外緣的腳本 -->
+    <script>
+    (function(){
+        const graph = document.getElementById('sysGraph');
+        if(!graph) return;
+        function center(el) {
+            const rect = el.getBoundingClientRect();
+            const parentRect = graph.getBoundingClientRect();
+            return {
+                x: rect.left - parentRect.left + rect.width / 2,
+                y: rect.top - parentRect.top + rect.height / 2,
+                rx: rect.width / 2,
+                ry: rect.height / 2
+            };
+        }
+        function placeLine(line) {
+            const fromId = line.dataset.from;
+            const toId = line.dataset.to;
+            const a = document.getElementById(fromId);
+            const b = document.getElementById(toId);
+            if (!a || !b) return;
+            const A = center(a);
+            const B = center(b);
+            const dx = B.x - A.x;
+            const dy = B.y - A.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist === 0) return;
+            const ux = dx / dist;
+            const uy = dy / dist;
+            const visible = Math.max(0, dist - A.rx - B.rx);
+            const startX = A.x + ux * A.rx;
+            const startY = A.y + uy * A.ry;
+            line.style.left = startX + 'px';
+            line.style.top = startY + 'px';
+            line.style.width = visible + 'px';
+            // rotate around origin (left top)
+            const angle = Math.atan2(dy, dx);
+            line.style.transform = 'rotate(' + angle + 'rad)';
+        }
+        function layoutAll(){
+            const lines = graph.querySelectorAll('.line');
+            lines.forEach(placeLine);
+        }
+        // initial layout
+        layoutAll();
+        window.addEventListener('resize', layoutAll);
+    })();
+    </script>
 </body>
 </html>

@@ -43,16 +43,33 @@ fieldset input[type="text"], fieldset input[type="date"] {
 /* 讓寬大的表格在小螢幕上可以橫向滾動 */
 .scrollable {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 }
 
-/* 基本資料欄位：使標籤與輸入框垂直置中對齊 */
-fieldset.basic-info label {
-  display: flex;
-  align-items: center;
-  margin-bottom: 4px;
+/* 基本資料區塊：讓標題與內容在桌機與手機皆置中 */
+fieldset.basic-info {
+  text-align: center;
 }
-fieldset.basic-info label input {
-  margin-left: 4px;
+fieldset.basic-info > legend {
+  text-align: center;
+  margin: 0 auto 8px;
+}
+fieldset.basic-info label {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  width: 100%;
+}
+fieldset.basic-info input[type="text"],
+fieldset.basic-info input[type="date"],
+fieldset.basic-info input[type="tel"],
+fieldset.basic-info input[type="email"] {
+  max-width: 280px;
+  width: 90%;
+  box-sizing: border-box;
 }
 
 /* 寬內容區塊 legend 置中顯示 */
