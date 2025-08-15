@@ -40,6 +40,10 @@ fieldset input[type="text"], fieldset input[type="date"] {
   width: 160px;
   box-sizing: border-box;
 }
+/* 讓寬大的表格在小螢幕上可以橫向滾動 */
+.scrollable {
+  overflow-x: auto;
+}
 </style>
 </head>
 <body>
@@ -112,17 +116,20 @@ fieldset input[type="text"], fieldset input[type="date"] {
     <fieldset>
         <legend>長客計劃</legend>
         <!-- 將五個輸入框排成一行，並保持間距 -->
-        <div style="display: flex; flex-wrap: nowrap; gap: 8px;">
-            <input type="text" id="longPlan1" placeholder="計劃 1" style="flex:1;">
-            <input type="text" id="longPlan2" placeholder="計劃 2" style="flex:1;">
-            <input type="text" id="longPlan3" placeholder="計劃 3" style="flex:1;">
-            <input type="text" id="longPlan4" placeholder="計劃 4" style="flex:1;">
-            <input type="text" id="longPlan5" placeholder="計劃 5" style="flex:1;">
+        <div class="scrollable">
+            <div style="display: flex; flex-wrap: nowrap; gap: 8px; min-width: 500px;">
+                <input type="text" id="longPlan1" placeholder="計劃 1" style="flex:1;">
+                <input type="text" id="longPlan2" placeholder="計劃 2" style="flex:1;">
+                <input type="text" id="longPlan3" placeholder="計劃 3" style="flex:1;">
+                <input type="text" id="longPlan4" placeholder="計劃 4" style="flex:1;">
+                <input type="text" id="longPlan5" placeholder="計劃 5" style="flex:1;">
+            </div>
         </div>
     </fieldset>
     <fieldset>
         <legend>跟進計劃</legend>
-        <table class="table-record">
+        <div class="scrollable">
+        <table class="table-record" style="min-width:800px;">
             <thead>
                 <tr>
                     <th>#</th>
@@ -138,11 +145,13 @@ fieldset input[type="text"], fieldset input[type="date"] {
             <tbody id="planTableBody">
             </tbody>
         </table>
+        </div>
     </fieldset>
     <!-- 參與會議區塊 -->
     <fieldset>
         <legend>參與會議</legend>
-        <table class="table-record">
+        <div class="scrollable">
+        <table class="table-record" style="min-width:800px;">
             <thead>
                 <tr>
                     <th>九九成法</th>
@@ -156,6 +165,7 @@ fieldset input[type="text"], fieldset input[type="date"] {
             <tbody id="meetingTableBody">
             </tbody>
         </table>
+        </div>
     </fieldset>
 </form>
     <div class="actions">
@@ -197,7 +207,7 @@ fieldset input[type="text"], fieldset input[type="date"] {
         }
         // 產生參與會議表格
         function initMeetingTable() {
-            // 使用文字輸入框取代下拉選單
+            // 定義三組九九成法任務
             const tasks1 = ['新人起步30小時','和上線主動聯繫','參加家庭聚會','參加中心聚會','會自己訂貨','3分鐘自我介紹','分享3族群健康管理','回答異議','營養早餐示範','15分鐘七種產品介紹示範','淨水器示範','空氣清淨機示範'];
             const tasks2 = ['會講OPP制度','成為專業班成員','會導覽體驗館','跟隨上線領導人','跟隨海外市場','銷售領導人和會議','建立20個優質顧客','開始零售產品','開始辦家庭聚會','學會社群推薦','承擔社群工作人員','名單分類'];
             const tasks3 = ['紀錄OPP百戰圖','紀錄90天跟進表','成為健管教練','嘉年華講師','現金流銀行家','上9%初階','上12%','上15%(銅章)','上18%','上銀章','上金章','上白金'];
@@ -214,11 +224,14 @@ fieldset input[type="text"], fieldset input[type="date"] {
                     tr.appendChild(tdTask);
                     const tdInput = document.createElement('td');
                     const input = document.createElement('input');
-                    input.type = 'text';
+                    // 使用日期選擇器以改善輸入體驗
+                    input.type = 'date';
                     input.dataset.row = (i + 1);
                     input.dataset.group = grp.col;
-                    // 自動儲存輸入
-                    input.addEventListener('input', autoSaveField);
+                    // 調整日期輸入框寬度合宜
+                    input.style.width = '130px';
+                    // 自動儲存日期選擇
+                    input.addEventListener('change', autoSaveField);
                     tdInput.appendChild(input);
                     tr.appendChild(tdInput);
                 });
@@ -261,8 +274,8 @@ fieldset input[type="text"], fieldset input[type="date"] {
                     cb.checked = !!plan[key];
                 });
                 const meeting = data.meeting || {};
-                // 設定參與會議輸入值
-                meetingTableBody.querySelectorAll('input[type="text"]').forEach(inp => {
+                // 設定參與會議輸入值（包含日期）
+                meetingTableBody.querySelectorAll('input').forEach(inp => {
                     const key = 'row' + inp.dataset.row + '_' + inp.dataset.group;
                     if (meeting.hasOwnProperty(key)) {
                         inp.value = meeting[key];
@@ -297,8 +310,8 @@ fieldset input[type="text"], fieldset input[type="date"] {
                 plan[key] = cb.checked;
             });
             const meeting = {};
-            // 收集參與會議：輸入文字
-            meetingTableBody.querySelectorAll('input[type="text"]').forEach(inp => {
+            // 收集參與會議：日期或文字輸入
+            meetingTableBody.querySelectorAll('input').forEach(inp => {
                 const key = 'row' + inp.dataset.row + '_' + inp.dataset.group;
                 meeting[key] = inp.value.trim();
             });

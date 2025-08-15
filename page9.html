@@ -95,6 +95,18 @@
                 localStorage.setItem('mindmapNodes', JSON.stringify(nodesData));
                 localStorage.setItem('mindmapLines', JSON.stringify(linesData));
             }
+            // 觸控支援：取得事件座標
+            function getCoords(ev) {
+                if (ev.touches && ev.touches.length > 0) {
+                    return { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+                }
+                return { x: ev.clientX, y: ev.clientY };
+            }
+
+            // 用於偵測雙擊或雙觸
+            let lastTapTime = 0;
+            let lastTapTarget = null;
+
             function renderAll() {
                 container.innerHTML = '';
                 // 渲染線段
@@ -120,27 +132,49 @@
                         handleEnd.style.top = line.y2 + 'px';
                     }
                     function attachHandle(handle, suffix) {
-                        handle.addEventListener('mousedown', (e) => {
-                            e.preventDefault();
-                            const offsetX = e.clientX - line['x' + suffix];
-                            const offsetY = e.clientY - line['y' + suffix];
-                            function move(ev) {
-                                line['x' + suffix] = ev.clientX - offsetX;
-                                line['y' + suffix] = ev.clientY - offsetY;
+                        // 滑鼠拖曳
+                        function startDrag(ev) {
+                            ev.preventDefault();
+                            const coords = getCoords(ev);
+                            const offsetX = coords.x - line['x' + suffix];
+                            const offsetY = coords.y - line['y' + suffix];
+                            function move(moveEv) {
+                                const c = getCoords(moveEv);
+                                line['x' + suffix] = c.x - offsetX;
+                                line['y' + suffix] = c.y - offsetY;
                                 update();
                             }
-                            function up() {
+                            function endDrag() {
                                 document.removeEventListener('mousemove', move);
-                                document.removeEventListener('mouseup', up);
+                                document.removeEventListener('mouseup', endDrag);
+                                document.removeEventListener('touchmove', move);
+                                document.removeEventListener('touchend', endDrag);
                                 save();
                             }
                             document.addEventListener('mousemove', move);
-                            document.addEventListener('mouseup', up);
+                            document.addEventListener('mouseup', endDrag);
+                            document.addEventListener('touchmove', move);
+                            document.addEventListener('touchend', endDrag);
+                        }
+                        handle.addEventListener('mousedown', startDrag);
+                        handle.addEventListener('touchstart', startDrag);
+
+                        // 雙擊/雙觸刪除線段或端點
+                        handle.addEventListener('dblclick', () => {
+                            removeLine();
+                        });
+                        handle.addEventListener('touchstart', (ev) => {
+                            const now = Date.now();
+                            if (lastTapTarget === handle && now - lastTapTime < 400) {
+                                // double tap
+                                removeLine();
+                                lastTapTarget = null;
+                            } else {
+                                lastTapTarget = handle;
+                                lastTapTime = now;
+                            }
                         });
                     }
-                    // 掛載端點拖曳：傳入 '1' 或 '2' 對應 x1/y1 和 x2/y2
-                    attachHandle(handleStart, '1');
-                    attachHandle(handleEnd, '2');
                     // 雙擊線段或端點刪除
                     function removeLine() {
                         const idx = linesData.indexOf(line);
@@ -150,9 +184,21 @@
                             renderAll();
                         }
                     }
+                    // 掛載端點拖曳：傳入 '1' 或 '2' 對應 x1/y1 和 x2/y2
+                    attachHandle(handleStart, '1');
+                    attachHandle(handleEnd, '2');
+                    // 用於刪除整條線段的觸發
                     lineEl.addEventListener('dblclick', removeLine);
-                    handleStart.addEventListener('dblclick', removeLine);
-                    handleEnd.addEventListener('dblclick', removeLine);
+                    lineEl.addEventListener('touchstart', (ev) => {
+                        const now = Date.now();
+                        if (lastTapTarget === lineEl && now - lastTapTime < 400) {
+                            removeLine();
+                            lastTapTarget = null;
+                        } else {
+                            lastTapTarget = lineEl;
+                            lastTapTime = now;
+                        }
+                    });
                     container.appendChild(lineEl);
                     container.appendChild(handleStart);
                     container.appendChild(handleEnd);
@@ -175,28 +221,55 @@
                         e.stopPropagation();
                     });
                     nodeEl.appendChild(input);
-                    nodeEl.addEventListener('mousedown', (e) => {
+                    // 藉由滑鼠或觸控拖曳節點
+                    function startNodeDrag(ev) {
                         // 若點擊的是輸入框，不啟動拖曳
-                        if (e.target.tagName.toLowerCase() === 'input') {
+                        if (ev.target.tagName && ev.target.tagName.toLowerCase() === 'input') {
                             return;
                         }
-                        e.preventDefault();
-                        const startX = e.clientX - nodeEl.offsetLeft;
-                        const startY = e.clientY - nodeEl.offsetTop;
-                        function move(ev) {
-                            node.x = ev.clientX - startX;
-                            node.y = ev.clientY - startY;
+                        ev.preventDefault();
+                        const coords = getCoords(ev);
+                        const startX = coords.x - node.x;
+                        const startY = coords.y - node.y;
+                        function move(moveEv) {
+                            const c = getCoords(moveEv);
+                            node.x = c.x - startX;
+                            node.y = c.y - startY;
                             nodeEl.style.left = node.x + 'px';
                             nodeEl.style.top = node.y + 'px';
                         }
-                        function up() {
+                        function endDrag() {
                             document.removeEventListener('mousemove', move);
-                            document.removeEventListener('mouseup', up);
+                            document.removeEventListener('mouseup', endDrag);
+                            document.removeEventListener('touchmove', move);
+                            document.removeEventListener('touchend', endDrag);
                             save();
                         }
                         document.addEventListener('mousemove', move);
-                        document.addEventListener('mouseup', up);
+                        document.addEventListener('mouseup', endDrag);
+                        document.addEventListener('touchmove', move);
+                        document.addEventListener('touchend', endDrag);
+                    }
+                    nodeEl.addEventListener('mousedown', startNodeDrag);
+                    nodeEl.addEventListener('touchstart', (ev) => {
+                        // 雙觸刪除節點
+                        const now = Date.now();
+                        if (lastTapTarget === nodeEl && now - lastTapTime < 400) {
+                            const idx = nodesData.indexOf(node);
+                            if (idx !== -1) {
+                                nodesData.splice(idx, 1);
+                                save();
+                                renderAll();
+                            }
+                            lastTapTarget = null;
+                            return;
+                        }
+                        // 記錄此次點擊
+                        lastTapTarget = nodeEl;
+                        lastTapTime = now;
+                        startNodeDrag(ev);
                     });
+                    // 雙擊刪除節點（桌面）
                     nodeEl.addEventListener('dblclick', () => {
                         const idx = nodesData.indexOf(node);
                         if (idx !== -1) {
