@@ -79,6 +79,36 @@ fieldset.basic-info input[type="email"] {
   margin: 0 auto;
   font-weight: bold;
 }
+
+        /* 長客計劃：行為 Flex 佈局，每行兩個輸入框 */
+        .long-plan-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .long-plan-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .long-plan-row input {
+            flex: 1 1 50%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 使滾動區塊內的表格寬度由內容決定，啟用水平捲動 */
+        .scrollable {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+        .scrollable .table-record {
+            width: max-content;
+            min-width: 800px;
+            max-width: none;
+        }
 </style>
 </head>
 <body>
@@ -150,16 +180,24 @@ fieldset.basic-info input[type="email"] {
     </fieldset>
     <fieldset class="wide-fieldset">
         <legend>長客計劃</legend>
-        <!-- 將輸入欄位排成二欄四列 -->
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-            <input type="text" id="longPlan1" placeholder="計劃 1">
-            <input type="text" id="longPlan2" placeholder="計劃 2">
-            <input type="text" id="longPlan3" placeholder="計劃 3">
-            <input type="text" id="longPlan4" placeholder="計劃 4">
-            <input type="text" id="longPlan5" placeholder="計劃 5">
-            <input type="text" id="longPlan6" placeholder="計劃 6">
-            <input type="text" id="longPlan7" placeholder="計劃 7">
-            <input type="text" id="longPlan8" placeholder="計劃 8">
+        <!-- 將輸入欄位排成四行，每行兩個輸入框，寬度平均 -->
+        <div class="long-plan-container">
+            <div class="long-plan-row">
+                <input type="text" id="longPlan1" placeholder="計劃 1">
+                <input type="text" id="longPlan2" placeholder="計劃 2">
+            </div>
+            <div class="long-plan-row">
+                <input type="text" id="longPlan3" placeholder="計劃 3">
+                <input type="text" id="longPlan4" placeholder="計劃 4">
+            </div>
+            <div class="long-plan-row">
+                <input type="text" id="longPlan5" placeholder="計劃 5">
+                <input type="text" id="longPlan6" placeholder="計劃 6">
+            </div>
+            <div class="long-plan-row">
+                <input type="text" id="longPlan7" placeholder="計劃 7">
+                <input type="text" id="longPlan8" placeholder="計劃 8">
+            </div>
         </div>
     </fieldset>
     <fieldset class="wide-fieldset">

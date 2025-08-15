@@ -41,7 +41,8 @@
             margin: 20px auto;
             /* 寬度足以容納所有節點 */
             width: 600px;
-            min-height: 250px;
+            /* 高度留足夠空間給白金圈列 */
+            min-height: 420px;
         }
         .sys-graph .circle {
             position: absolute;
@@ -147,12 +148,13 @@
                 <div id="nodeB" class="circle" style="left: 150px; top: 90px; width: 80px; height: 80px;">B 翡翠</div>
                 <div id="nodeC" class="circle" style="left: 300px; top: 90px; width: 80px; height: 80px;">C 鑽石</div>
                 <!-- 右側白金節點列 -->
-                <div class="platinum-col" style="position:absolute; left: 450px; top: 30px;">
+                <div class="platinum-col" style="position:absolute; left: 450px; top: 20px;">
                     <div id="p1" class="circle" style="width: 70px; height: 70px;">白金</div>
                     <div id="p2" class="circle" style="width: 70px; height: 70px;">白金</div>
                     <div id="p3" class="circle" style="width: 70px; height: 70px;">白金</div>
                     <div id="p4" class="circle" style="width: 70px; height: 70px;">白金</div>
                     <div id="p5" class="circle" style="width: 70px; height: 70px;">白金</div>
+                    <div id="p6" class="circle" style="width: 70px; height: 70px;">白金</div>
                 </div>
                 <!-- 線段使用 data-from 和 data-to 屬性自動定位 -->
                 <div class="line" data-from="nodeA" data-to="nodeB"></div>
@@ -163,6 +165,7 @@
                 <div class="line" data-from="nodeC" data-to="p3"></div>
                 <div class="line" data-from="nodeC" data-to="p4"></div>
                 <div class="line" data-from="nodeC" data-to="p5"></div>
+                <div class="line" data-from="nodeC" data-to="p6"></div>
             </div>
             <p style="text-align:center;font-style:italic;margin-top:0;">不是先加入先贏，而是會做才會贏。</p>
         </section>
