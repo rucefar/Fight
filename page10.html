@@ -52,6 +52,23 @@
     
 </style>
     <link rel="stylesheet" href="styles.css">
+
+<style>
+/* === Cards layout 3×3 (preserve all original colors) === */
+.cards-matrix{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(260px,1fr));
+  gap:16px;
+  margin:12px 0;
+}
+.card{background:#fff;border-radius:14px;box-shadow:0 8px 22px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.04);padding:10px}
+.card-title{font-weight:800;margin:4px 4px 8px;color:#333}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.card-grid .cell{border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.grid{display:none} /* 隱藏原9×9外框 */
+@media (max-width:900px){ .cards-matrix{grid-template-columns:1fr} }
+</style>
+
 </head>
 <body>
 
@@ -124,5 +141,76 @@ labels.forEach((lab, idx)=>{
 });
 bindAutosave('mandala','mandala:');
 </script>
+
+<script>
+(function(){
+  const root = document.getElementById('mandala');
+  if(!root) return;
+  const cells = Array.from(root.children); // 81 cells in row-major order
+
+  // 取得某個 3x3 區塊的 9 個索引（按原始行列順序）
+  function subgrid(r0, c0){
+    const arr = [];
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        arr.push((r0+r)*9 + (c0+c));
+      }
+    }
+    return arr;
+  }
+
+  // 定義各區塊在原 9×9 中的起點 (row,col)
+  const blocks = {
+    'A': {r:0, c:0},
+    'B': {r:0, c:3},
+    'C': {r:0, c:6},
+    'H': {r:3, c:0},
+    'CENTER': {r:3, c:3},
+    'D': {r:3, c:6},
+    'G': {r:6, c:0},
+    'F': {r:6, c:3},
+    'E': {r:6, c:6},
+  };
+
+  // 你要的順序：
+  //  A | B | C
+  //  H | CENTER | D
+  //  G | F | E
+  const order = [
+    ['A','B','C'],
+    ['H','CENTER','D'],
+    ['G','F','E'],
+  ];
+
+  const matrix = document.createElement('div');
+  matrix.className = 'cards-matrix';
+
+  function buildCard(key){
+    const card = document.createElement('div');
+    card.className = 'card';
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = key === 'CENTER' ? '中心 3×3' : (key + ' 區');
+    const grid = document.createElement('div');
+    grid.className = 'card-grid';
+
+    const {r,c} = blocks[key];
+    const idxs = subgrid(r, c);
+    idxs.forEach(i => grid.appendChild(cells[i])); // 保留原有顏色與事件
+
+    card.appendChild(title);
+    card.appendChild(grid);
+    return card;
+  }
+
+  order.forEach(row => {
+    row.forEach(key => matrix.appendChild(buildCard(key)));
+  });
+
+  // 用卡片矩陣替換原 9×9 容器
+  root.replaceWith(matrix);
+})();
+</script>
+
 </body>
 </html>
