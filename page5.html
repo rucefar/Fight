@@ -6,73 +6,24 @@
     <title>第5頁 - 事業制度</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .triangle-diagram {
-            margin: 20px auto;
-            max-width: 220px;
+        .triangle-diagram { margin: 20px auto; max-width: 220px; }
+        table.triangle-table { margin: 10px auto; border-collapse: collapse; width: 220px; }
+        table.triangle-table th, table.triangle-table td {
+            border: 1px solid #ccc; padding: 6px; text-align: center;
         }
-        table.triangle-table {
-            margin: 10px auto;
-            border-collapse: collapse;
-            width: 220px;
-        }
-        table.triangle-table th,
-        table.triangle-table td {
-            border: 1px solid #ccc;
-            padding: 6px;
-            text-align: center;
-        }
-        .network-diagram {
-            margin: 20px auto;
-            /* 放大圖示 */
-            max-width: 600px;
-            display: block;
-        }
+        /* 主要清單移除預設圓點 */
+        .benefits { list-style: none; padding-left: 0; margin-left: 0; }
 
-        /* 移除主要優勢清單的預設圓點，避免與內部巢狀列表重複顯示 */
-        .benefits {
-            list-style: none;
-            padding-left: 0;
-            margin-left: 0;
-        }
-
-        /* 互動式領導網路圖示樣式 */
-        .sys-graph {
-            position: relative;
-            margin: 20px auto;
-            /* 調整寬度以容納右側垂直排列的白金節點列 */
-            width: 700px;
-            /* 調整高度以容納六個白金節點的縱向排列 */
-            min-height: 450px;
-        }
-        .sys-graph .circle {
-            position: absolute;
-            border-radius: 50%;
-            border: 2px solid #0077cc;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* 新增圖片容器：置中且避免過大 */
+        .bonus-image {
             text-align: center;
-            font-size: 12px;
-            box-sizing: border-box;
-            z-index: 2;
+            margin: 20px 0 28px;
         }
-        .sys-graph .line {
-            position: absolute;
-            height: 2px;
-            background: #0077cc;
-            transform-origin: 0 0;
-            z-index: 1;
-        }
-        /* 白金節點列設定：垂直排列並留出節點間距 */
-        .sys-graph .platinum-col {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        /* 重置白金節點的外距，使用 gap 控制間距 */
-        .sys-graph .platinum-col .circle {
-            margin: 0;
+        .bonus-image img {
+            width: 100%;
+            max-width: 420px;    /* 控制最大寬度，避免過大 */
+            height: auto;
+            display: inline-block;
         }
     </style>
 </head>
@@ -83,29 +34,30 @@
             <a href="home.html">首頁</a>
             <a href="page6.html">下一頁</a>
         </nav>
+
         <h2>事業制度</h2>
+
         <section>
             <h3>一、創業三要素</h3>
-            <!-- 將有序列表改為段落，取消數字標號 -->
             <p><strong>條件</strong>：例如資金、專業、證照、學歷等。</p>
             <p><strong>風險</strong>：是不是我們能承擔的？</p>
             <p><strong>結果</strong>：是不是我們要的？</p>
         </section>
+
         <section>
             <h3>二、企業成功金三角</h3>
             <p>制度、產品、系統缺少任一項企業就做不大。只有兼顧三者，才能永續經營。</p>
-            <!-- 三角形圖示 -->
-            <svg class="triangle-diagram" viewBox="0 0 200 170">
+
+            <!-- 三角圖示 -->
+            <svg class="triangle-diagram" viewBox="0 0 200 170" aria-label="企業成功金三角">
                 <polygon points="100,20 20,150 180,150" fill="none" stroke="#0077cc" stroke-width="2" />
                 <text x="100" y="10" text-anchor="middle">制度</text>
                 <text x="10" y="165" text-anchor="start">產品</text>
                 <text x="190" y="165" text-anchor="end">系統</text>
             </svg>
-            <!-- 組合表格 -->
+
             <table class="triangle-table">
-                <thead>
-                    <tr><th>制度</th><th>產品</th><th>系統</th></tr>
-                </thead>
+                <thead><tr><th>制度</th><th>產品</th><th>系統</th></tr></thead>
                 <tbody>
                     <tr><td>✓</td><td>✓</td><td>✓</td></tr>
                     <tr><td>✓</td><td>✓</td><td>✗</td></tr>
@@ -113,7 +65,7 @@
                     <tr><td>✗</td><td>✓</td><td>✓</td></tr>
                 </tbody>
             </table>
-            <!-- 使用段落搭配前導符號顯示重點，避免瀏覽器自動產生的巢狀列表縮排造成多餘的圓點 -->
+
             <div class="triangle-notes">
                 <p>• 單打獨鬥，事業做不大。</p>
                 <p>• 制度不好，事業做不久。</p>
@@ -121,6 +73,7 @@
                 <p>• 企業金三角，才能永續經營。</p>
             </div>
         </section>
+
         <section>
             <h3>三、為何選擇安麗</h3>
             <ul class="benefits">
@@ -128,7 +81,6 @@
                 <li><strong>無最低業績要求：</strong>沒有寬度和深度的限制，事業可以無限大。</li>
                 <li>
                     <strong>6% 領導獎金：</strong>有做有收入，沒做還有收入。
-                    <!-- 將原來的說明整合為單一巢狀列表，避免在列表結束後出現殘留的項目符號 -->
                     <ul>
                         <li>1 萬分 × 50 × 6% = 30,000 元獎金。</li>
                         <li>相當於一棟 3,000 萬房子出租的租金。</li>
@@ -145,8 +97,16 @@
                     </ul>
                 </li>
                 <li><strong>可世襲：</strong>世世代代無條件繼承，努力不白費。</li>
+
+                <!-- 這行是你指定的文字 -->
                 <li><strong>可全球年終分紅計畫：</strong>翡翠、鑽石年終獎金全球聯網計算。</li>
             </ul>
-           
+
+            <!-- 新增圖片（置中且大小合宜） -->
+            <div class="bonus-image">
+                <img src="images/biss.png" alt="biss 圖示">
+            </div>
+        </section>
+    </div>
 </body>
 </html>
