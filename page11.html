@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>page11 目標表格 - 目標表格（可輸入自動儲存）</title>
+<style>
+  :root{ --blue:#2196F3; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans TC,Arial; color:#111}
+  .wrap{max-width:1200px;margin:24px auto;padding:0 12px}
+  h2{margin:0 0 20px;font-size:28px;font-weight:800;text-align:center}
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .block{border:3px solid var(--blue);border-radius:4px;background:#fff;padding:6px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .cell{border:1px solid #cfd8dc;border-radius:2px;padding:6px;display:flex;flex-direction:column;gap:6px}
+  .label{text-align:center;font-weight:700;min-height:20px}
+  .cell input{width:100%;padding:6px;border:1px solid #bbb;border-radius:4px}
+  @media (max-width:960px){ .board{grid-template-columns:1fr} }
+
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans TC,Arial;color:#111;}
+  .wrap{max-width:1200px;margin:24px auto;padding:0 12px}
+  /* 按鈕列 */
+  
+  
+  /* 標題 */
+  h2{margin:0 0 20px;font-size:28px;font-weight:800;text-align:center}
+    
+
+    .site-nav a{ margin-right:8px; display:inline-block; padding:6px 10px; 
+      text-decoration:none; border:1px solid #ccc; border-radius:4px; }
+    .site-nav a:hover{ background:#f7f7f7; }
+    
+</style>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <style>
+      
+      
+    </style>
+    
+
+    <div class="container">
+<nav>
+            <a href="page10.html">上一頁</a>
+            <a href="home.html">首頁</a>
+            <a href="page5.html">下一頁</a>
+        </nav>
+
+
+    
+    
+    
+
+    <h2>目標表格</h2>
+    <section id="targets" class="board"></section>
+  </div>
+
+<script>
+// Auto-save helper: save on input to localStorage
+function bindAutosave(rootId, storagePrefix){
+  const root = document.getElementById(rootId);
+  if(!root) return;
+  // restore
+  root.querySelectorAll('input, textarea').forEach(el=>{
+    const k = storagePrefix + (el.dataset.key || el.name || '');
+    const v = localStorage.getItem(k);
+    if(v !== null) el.value = v;
+    el.addEventListener('input', ()=>{
+      localStorage.setItem(k, el.value);
+    });
+  });
+}
+</script>
+
+<script>
+// 每個大區塊 3x3：先放置標籤文字；使用空字串可留白
+const blocks = [
+  // 區塊1：10人 / 6%
+  [
+    ["名單10人","檢視自用\n30項產品","每 週\n對焦 2 次"],
+    ["營養餐 3 場","目標：6%","18項DEMO\n3項OPP"],
+    ["水/空清 2 場","推薦 5 人","會議邀約"]
+  ],
+  // 區塊2：15人 / 9%
+  [
+    ["名單15人","檢視自用\n30項產品","每 週\n對焦 2 次"],
+    ["營養餐 5 場","目標：9%","已加入客戶\nDEMO 3項5場"],
+    ["水/空清 4 場","推薦 5 人","會議邀約"]
+  ],
+  // 區塊3：20人 / 12%
+  [
+    ["名單20人","檢視自用\n30項產品","每 週\n對焦 2 次"],
+    ["營養餐 7 場","目標：12%","已加入客戶\nDEMO 3項8場"],
+    ["水/空清 6 場","推薦 5 人","會議邀約"]
+  ],
+  // 區塊4：30人 / 15%
+  [
+    ["名單30人","檢視自用\n30項產品","每 週\n對焦 2 次"],
+    ["營養餐 9 場","目標：15%","已加入客戶\nDEMO 3項5場"],
+    ["水/空清 8 場","推薦 5 人","會議邀約"]
+  ],
+  // 區塊5：30人 / 18%
+  [
+    ["名單30人","檢視自用\n30項產品","每 週\n對焦 2 次"],
+    ["營養餐 11 場","目標：18%","已加入客戶\nDEMO 3項10場"],
+    ["水/空清10 場","推薦10 人","會議邀約"]
+  ],
+  // 區塊6：50人 / 21%
+  [
+    ["名單50人","檢視自用\n30項產品","每 週\n對焦 2 次"],
+    ["營養餐 13 場","目標：21%","已加入客戶\nDEMO 3項20場"],
+    ["水/空清12 場","推薦10 人","會議邀約"]
+  ]
+];
+
+const board = document.getElementById('targets');
+let cellIdx = 0;
+blocks.forEach((block, bi)=>{
+  const container = document.createElement('div');
+  container.className = 'block';
+  block.flat().forEach((text)=>{
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const lab = document.createElement('div');
+    lab.className = 'label';
+    lab.innerHTML = (text||'').replace(/\n/g,'<br>');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '輸入…';
+    input.dataset.key = 't_cell_' + (++cellIdx);
+    cell.appendChild(lab);
+    cell.appendChild(input);
+    container.appendChild(cell);
+  });
+  board.appendChild(container);
+});
+
+bindAutosave('targets','targets:');
+</script>
+</body>
+</html>
