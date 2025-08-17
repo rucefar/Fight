@@ -125,8 +125,12 @@
 
                 // 跟進紀錄（對應跟進次數）
                 const recTd = document.createElement('td');
-                const recInput = document.createElement('input');
-                recInput.type = 'text';
+                const recInput = document.createElement('textarea');
+                recInput.rows = 3;
+                recInput.style.resize = 'vertical';
+                recInput.style.width = '100%';
+                recInput.style.boxSizing = 'border-box';
+                recInput.style.display = 'block';
                 recInput.dataset.key = `rel_${i}_record_1`; // 預設存第一次
                 recTd.appendChild(recInput);
                 tr.appendChild(recTd);
