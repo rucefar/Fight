@@ -10,7 +10,6 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            /* 固定欄寬，方便調整各欄寬度 */
             table-layout: fixed;
         }
         table.rel-table th,
@@ -23,15 +22,11 @@
         table.rel-table th {
             background: #f0f0f0;
         }
-        table.rel-table input {
+        table.rel-table input, table.rel-table select {
             width: 100%;
             box-sizing: border-box;
             border: none;
             padding: 4px;
-        }
-        /* 將輔銷資料欄位放大一些，使輸入框更寬 */
-        table.rel-table th:nth-child(8), table.rel-table td:nth-child(8) {
-            width: 20%;
         }
         .note {
             font-size: 0.9em;
@@ -49,37 +44,35 @@
             <a href="page8.html">下一頁</a>
         </nav>
         <h2>關係五部曲紀錄</h2>
-        <!-- 更新關係五部曲說明：最後一階為莫逆 -->
         <div class="note">★ 關係五部曲：認識、熟悉、喜歡、信任、莫逆</div>
         <table class="rel-table">
             <thead>
                 <tr>
                     <th style="width:5%">#</th>
-                    <!-- 調整日期欄寬度，使日期完整顯示 -->
                     <th style="width:18%">日期</th>
                     <th style="width:14%">關係度</th>
                     <th style="width:14%">姓名</th>
                     <th style="width:20%">主要話題</th>
-                    <th style="width:14%">產品示範</th>
-                    <th style="width:15%">錄音檔</th>
-                    <th style="width:20%">輔銷資料</th>
+                    <th style="width:14%">跟進次數</th>
+                    <th style="width:30%">跟進紀錄</th>
                 </tr>
             </thead>
-            <tbody id="rel-table-body">
-            </tbody>
+            <tbody id="rel-table-body"></tbody>
         </table>
         <script>
-        // 動態生成表格行並儲存到 localStorage
         (function() {
             const tbody = document.getElementById('rel-table-body');
             const relOptions = ['認識','熟悉','喜歡','信任','莫逆'];
+
             // 生成8行
             for (let i = 1; i <= 8; i++) {
                 const tr = document.createElement('tr');
+
                 // 編號
                 const numTd = document.createElement('td');
                 numTd.textContent = i;
                 tr.appendChild(numTd);
+
                 // 日期
                 const dateTd = document.createElement('td');
                 const dateInput = document.createElement('input');
@@ -87,6 +80,7 @@
                 dateInput.dataset.key = `rel_${i}_date`;
                 dateTd.appendChild(dateInput);
                 tr.appendChild(dateTd);
+
                 // 關係度
                 const degTd = document.createElement('td');
                 const degSelect = document.createElement('select');
@@ -99,6 +93,7 @@
                 });
                 degTd.appendChild(degSelect);
                 tr.appendChild(degTd);
+
                 // 姓名
                 const nameTd = document.createElement('td');
                 const nameInput = document.createElement('input');
@@ -106,6 +101,7 @@
                 nameInput.dataset.key = `rel_${i}_name`;
                 nameTd.appendChild(nameInput);
                 tr.appendChild(nameTd);
+
                 // 主要話題
                 const topicTd = document.createElement('td');
                 const topicInput = document.createElement('input');
@@ -113,29 +109,39 @@
                 topicInput.dataset.key = `rel_${i}_topic`;
                 topicTd.appendChild(topicInput);
                 tr.appendChild(topicTd);
-                // 產品示範
-                const demoTd = document.createElement('td');
-                const demoInput = document.createElement('input');
-                demoInput.type = 'text';
-                demoInput.dataset.key = `rel_${i}_demo`;
-                demoTd.appendChild(demoInput);
-                tr.appendChild(demoTd);
-                // 錄音檔
-                const audioTd = document.createElement('td');
-                const audioInput = document.createElement('input');
-                audioInput.type = 'text';
-                audioInput.dataset.key = `rel_${i}_audio`;
-                audioTd.appendChild(audioInput);
-                tr.appendChild(audioTd);
-                // 輔銷資料
-                const matTd = document.createElement('td');
-                const matInput = document.createElement('input');
-                matInput.type = 'text';
-                matInput.dataset.key = `rel_${i}_material`;
-                matTd.appendChild(matInput);
-                tr.appendChild(matTd);
+
+                // 跟進次數（下拉 1~10）
+                const followTd = document.createElement('td');
+                const followSelect = document.createElement('select');
+                followSelect.dataset.key = `rel_${i}_followCount`;
+                for (let n = 1; n <= 10; n++) {
+                    const opt = document.createElement('option');
+                    opt.value = n;
+                    opt.textContent = n;
+                    followSelect.appendChild(opt);
+                }
+                followTd.appendChild(followSelect);
+                tr.appendChild(followTd);
+
+                // 跟進紀錄（對應跟進次數）
+                const recTd = document.createElement('td');
+                const recInput = document.createElement('input');
+                recInput.type = 'text';
+                recInput.dataset.key = `rel_${i}_record_1`; // 預設存第一次
+                recTd.appendChild(recInput);
+                tr.appendChild(recTd);
+
+                // 切換跟進次數時更新 dataset.key
+                followSelect.addEventListener('change', () => {
+                    const n = followSelect.value;
+                    recInput.dataset.key = `rel_${i}_record_${n}`;
+                    const saved = localStorage.getItem(recInput.dataset.key);
+                    recInput.value = saved || '';
+                });
+
                 tbody.appendChild(tr);
             }
+
             // 載入儲存的資料並設置監聽
             const elements = tbody.querySelectorAll('input, select');
             elements.forEach(el => {
@@ -147,22 +153,12 @@
                 el.addEventListener('change', () => {
                     localStorage.setItem(key, el.value);
                 });
+                el.addEventListener('input', () => {
+                    localStorage.setItem(el.dataset.key, el.value);
+                });
             });
         })();
         </script>
     </div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('input[data-key]');
-        inputs.forEach(function(input) {
-            const key = input.dataset.key;
-            const stored = localStorage.getItem(key);
-            if (stored) input.value = stored;
-            input.addEventListener('input', function() {
-                localStorage.setItem(key, input.value);
-            });
-        });
-    });
-    </script>
 </body>
 </html>
