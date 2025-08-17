@@ -1,85 +1,179 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>客戶資料管理</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 600px;
-            margin: 1rem auto;
-        }
-        th, td {
-            border: 1px solid #aaa;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>客戶資料管理</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .container { max-width: 1000px; margin: 0 auto; padding: 16px; }
+    nav.nav-buttons { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 16px; }
+    nav.nav-buttons a { flex: 1; text-align: center; padding: 8px 0; text-decoration: none; border: 1px solid #ccc; border-radius: 4px; background: #1976d2; color: #fff; }
+    nav.nav-buttons a:hover { background: #1565c0; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+    th, td { border: 1px solid #aaa; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+    .muted { color: #666; font-size: 0.9em; }
+    .delete-link { color: #c62828; cursor: pointer; text-decoration: underline; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <nav>
-            <!-- 上一頁連結回到事業版圖 -->
-            <a href="page9.html">上一頁</a>
-            <a href="home.html">首頁</a>
-        </nav>
-        <h2>客戶資料管理</h2>
-        <p>以下為已儲存的客戶名單，點擊姓名可檢視或編輯該客戶的資料。</p>
-        <table>
-            <thead>
-                <tr><th>#</th><th>姓名</th></tr>
-            </thead>
-            <tbody id="customerList">
-                <!-- populated via script -->
-            </tbody>
-        </table>
-    </div>
-    <script>
-    (function() {
-        const listEl = document.getElementById('customerList');
-        // 移除先前測試用的資料（若存在）
-        if (localStorage.getItem('client-test')) {
-            localStorage.removeItem('client-test');
+  <div class="container">
+    <nav class="nav-buttons">
+      <a href="page9.html">上一頁</a>
+      <a href="#" id="exportJsonBtn" role="button">匯出資料</a>
+      <a href="#" id="importJsonBtn" role="button">匯入資料</a>
+      <a href="home.html">首頁</a>
+    </nav>
+
+    <h2>客戶資料管理</h2>
+    <p class="muted">以下為本機瀏覽器中已儲存的客戶資料（localStorage）。點擊姓名可前往編輯。</p>
+
+    <table aria-label="客戶清單">
+      <thead>
+        <tr>
+          <th style="width:80px">#</th>
+          <th>姓名</th>
+          <th style="width:100px">刪除</th>
+        </tr>
+      </thead>
+      <tbody id="customerList"><tr><td colspan="3">載入中…</td></tr></tbody>
+    </table>
+  </div>
+
+  <input type="file" id="importFileInput" accept="application/json,.json" style="display:none"/>
+
+  <script>
+  (function(){
+    const LS_PREFIX = 'client-';
+    const listEl = document.getElementById('customerList');
+
+    function loadCustomers() {
+      const keys = Object.keys(localStorage)
+        .filter(k => !LS_PREFIX || k.startsWith(LS_PREFIX))
+        .sort();
+      listEl.innerHTML = '';
+
+      if (keys.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 3;
+        td.textContent = '目前沒有任何客戶資料。';
+        tr.appendChild(td);
+        listEl.appendChild(tr);
+        return;
+      }
+
+      keys.forEach((k, i) => {
+        let data = null;
+        try { data = JSON.parse(localStorage.getItem(k)); } catch(e) {}
+        const name = (data && data.basicInfo && data.basicInfo.name) ? data.basicInfo.name
+                    : k.replace(/^client-/, '') || '未命名';
+
+        const tr = document.createElement('tr');
+
+        const tdIndex = document.createElement('td');
+        tdIndex.textContent = String(i + 1);
+        tr.appendChild(tdIndex);
+
+        const tdName = document.createElement('td');
+        if (name && name !== '未命名') {
+          const a = document.createElement('a');
+          a.textContent = name;
+          a.href = 'page2.html?client=' + encodeURIComponent(name);
+          tdName.appendChild(a);
+        } else {
+          tdName.textContent = name || '';
         }
-        function loadCustomers() {
-            listEl.innerHTML = '';
-            // 取得所有 client- 開頭的 key
-            const keys = Object.keys(localStorage).filter(key => key.startsWith('client-'));
-            keys.sort();
-            // 預計顯示四行，若不足則補空白
-            for (let i = 0; i < 4; i++) {
-                const tr = document.createElement('tr');
-                const tdIndex = document.createElement('td');
-                tdIndex.textContent = i + 1;
-                const tdName = document.createElement('td');
-                if (keys[i]) {
-                    let data;
-                    try {
-                        data = JSON.parse(localStorage.getItem(keys[i]));
-                    } catch(e) {
-                        data = null;
-                    }
-                    const name = data && data.basicInfo && data.basicInfo.name ? data.basicInfo.name : keys[i].substring(7);
-                    const a = document.createElement('a');
-                    a.textContent = name || '未命名';
-                    a.href = 'page2.html?client=' + encodeURIComponent(name);
-                    tdName.appendChild(a);
-                } else {
-                    tdName.textContent = '';
-                }
-                tr.appendChild(tdIndex);
-                tr.appendChild(tdName);
-                listEl.appendChild(tr);
+        tr.appendChild(tdName);
+
+        const tdDelete = document.createElement('td');
+        if (localStorage.getItem(k)) {
+          const del = document.createElement('span');
+          del.textContent = '刪除';
+          del.className = 'delete-link';
+          del.addEventListener('click', () => {
+            if (confirm('確定要刪除「' + (name||'這筆') + '」的資料嗎？')) {
+              localStorage.removeItem(k);
+              loadCustomers();
             }
+          });
+          tdDelete.appendChild(del);
         }
-        loadCustomers();
-    })();
-    </script>
+        tr.appendChild(tdDelete);
+
+        listEl.appendChild(tr);
+      });
+    }
+
+    const exportBtn = document.getElementById('exportJsonBtn');
+    const importBtn = document.getElementById('importJsonBtn');
+    const fileInput = document.getElementById('importFileInput');
+
+    function nowStamp(){
+      const d = new Date(), p = n => String(n).padStart(2,'0');
+      return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+'-'+p(d.getMinutes())+'-'+p(d.getSeconds());
+    }
+
+    function gatherData(){
+      const data = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!LS_PREFIX || (k && k.startsWith(LS_PREFIX))) {
+          data[k] = localStorage.getItem(k);
+        }
+      }
+      return data;
+    }
+
+    function doExport(ev){
+      ev && ev.preventDefault();
+      const blob = new Blob([JSON.stringify(gatherData(), null, 2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'customer_data_' + nowStamp() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+    }
+
+    function doImport(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const obj = JSON.parse(reader.result);
+          if (!obj || typeof obj !== 'object') { alert('JSON 格式不正確'); return; }
+          const keys = Object.keys(obj);
+          if (keys.length === 0) { alert('檔案中沒有可匯入的資料'); return; }
+          const willOverwrite = keys.some(k => localStorage.getItem(k) !== null);
+          if (willOverwrite && !confirm('匯入將覆蓋同名資料，確定要匯入嗎？')) return;
+
+          keys.forEach(k => {
+            if (!LS_PREFIX || k.startsWith(LS_PREFIX)) {
+              localStorage.setItem(k, String(obj[k] ?? ''));
+            }
+          });
+          alert('匯入完成！頁面將重新載入以套用資料。');
+          location.reload();
+        } catch (e) {
+          console.error(e);
+          alert('讀取或解析 JSON 時發生錯誤。');
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    }
+
+    exportBtn.addEventListener('click', doExport);
+    importBtn.addEventListener('click', (e)=>{ e.preventDefault(); fileInput.click(); });
+    fileInput.addEventListener('change', ()=>{
+      const f = fileInput.files && fileInput.files[0];
+      if (f) doImport(f);
+      fileInput.value = '';
+    });
+
+    loadCustomers();
+  })();
+  </script>
 </body>
 </html>
