@@ -20,7 +20,7 @@
         table.friend-table th {
             background: #f0f0f0;
         }
-        table.friend-table input {
+        table.friend-table input, table.friend-table textarea {
             width: 100%;
             box-sizing: border-box;
             border: none;
@@ -33,6 +33,12 @@
             padding: 10px;
             border-radius: 4px;
         }
+        .delete-link {
+            color: #c62828;
+            cursor: pointer;
+            text-decoration: underline;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -41,6 +47,9 @@
             <a href="page5.html">上一頁</a>
             <a href="home.html">首頁</a>
             <a href="page7.html">下一頁</a>
+            <!-- 新增匯出 / 匯入按鈕（沿用與其它導覽連結相同的 <a> 樣式） -->
+            <a href="#" id="exportJsonBtn" role="button">匯出資料</a>
+            <a href="#" id="importJsonBtn" role="button">匯入資料</a>
         </nav>
         <h2>朋友名單</h2>
         <p>名單如果沒有整理容易忘記，請在下表記錄你的朋友資料。</p>
@@ -58,17 +67,90 @@
                     <th style="width:20%">姓名</th>
                     <th style="width:20%">電話</th>
                     <th style="width:25%">初見面</th>
-                    <th style="width:30%">備註</th>
+                    <th style="width:25%">備註</th>
+                    <th style="width:10%">刪除</th>
                 </tr>
             </thead>
             <tbody id="friend-table-body">
             </tbody>
         </table>
     </div>
+
+    <!-- 匯入用檔案選擇器（隱藏） -->
+    <input type="file" id="importFileInput" accept="application/json,.json" style="display:none"/>
+
     <script>
+    // 匯出 / 匯入 只針對 friend_ 前綴的資料（此頁產生的key）
+    (function(){
+        const LS_PREFIX = 'friend_';
+        const exportBtn = document.getElementById('exportJsonBtn');
+        const importBtn = document.getElementById('importJsonBtn');
+        const fileInput = document.getElementById('importFileInput');
+
+        function nowStamp(){
+            const d = new Date(), p = n => String(n).padStart(2,'0');
+            return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+'-'+p(d.getMinutes())+'-'+p(d.getSeconds());
+        }
+        function gatherData(){
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (!LS_PREFIX || (k && k.startsWith(LS_PREFIX))) {
+                    data[k] = localStorage.getItem(k);
+                }
+            }
+            return data;
+        }
+        function doExport(ev){
+            ev && ev.preventDefault();
+            const blob = new Blob([JSON.stringify(gatherData(), null, 2)], { type:'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'friend_list_' + nowStamp() + '.json';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+        }
+        function doImport(file){
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const obj = JSON.parse(reader.result);
+                    if (!obj || typeof obj !== 'object') { alert('JSON 格式不正確'); return; }
+                    const keys = Object.keys(obj);
+                    if (keys.length === 0) { alert('檔案中沒有可匯入的資料'); return; }
+                    const willOverwrite = keys.some(k => localStorage.getItem(k) !== null);
+                    if (willOverwrite && !confirm('匯入將覆蓋同名資料，確定要匯入嗎？')) return;
+
+                    keys.forEach(k => {
+                        if (!LS_PREFIX || k.startsWith(LS_PREFIX)) {
+                            localStorage.setItem(k, String(obj[k] ?? ''));
+                        }
+                    });
+                    alert('匯入完成！頁面將重新載入以套用資料。');
+                    location.reload();
+                } catch (e) {
+                    console.error(e);
+                    alert('讀取或解析 JSON 時發生錯誤。');
+                }
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        if (exportBtn) exportBtn.addEventListener('click', doExport);
+        if (importBtn) importBtn.addEventListener('click', (e)=>{ e.preventDefault(); fileInput.click(); });
+        if (fileInput) fileInput.addEventListener('change', ()=>{
+            const f = fileInput.files && fileInput.files[0];
+            if (f) doImport(f);
+            fileInput.value = '';
+        });
+    })();
+
     // 產生100列朋友名單，並在輸入時自動儲存 localStorage
     document.addEventListener('DOMContentLoaded', function() {
         const tbody = document.getElementById('friend-table-body');
+        const fields = ['name','phone','meet','note']; // 四個欄位
         // 動態建立 100 列
         for (let i = 1; i <= 100; i++) {
             const tr = document.createElement('tr');
@@ -76,8 +158,8 @@
             const tdIdx = document.createElement('td');
             tdIdx.textContent = i;
             tr.appendChild(tdIdx);
-            // 欄位
-            const fields = ['name','phone','meet','note'];
+
+            // 姓名 / 電話 / 初見面 / 備註
             fields.forEach(function(field) {
                 const td = document.createElement('td');
                 const input = document.createElement('input');
@@ -86,18 +168,67 @@
                 td.appendChild(input);
                 tr.appendChild(td);
             });
+
+            // 刪除欄（最右側）
+            const tdDel = document.createElement('td');
+            const del = document.createElement('span');
+            del.textContent = '刪除';
+            del.className = 'delete-link';
+            del.style.display = 'none'; // 預設隱藏，等有資料時再顯示
+            del.addEventListener('click', function(){
+                // 刪除該列所有 friend_i_* 欄位
+                const keys = fields.map(f => 'friend_' + i + '_' + f);
+                if (confirm('確定要刪除此列的所有資料嗎？')) {
+                    keys.forEach(k => localStorage.removeItem(k));
+                    // 清空輸入框
+                    keys.forEach((k, idx) => {
+                        // tr: [idx tdIdx] + [4 fields] + [del]
+                        const td = tr.children[1 + idx]; // 跳過序號
+                        const inp = td.querySelector('input');
+                        if (inp) inp.value = '';
+                    });
+                    updateDeleteVisibility(i, tr);
+                }
+            });
+            tdDel.appendChild(del);
+            tr.appendChild(tdDel);
+
             tbody.appendChild(tr);
         }
-        // 讀取並儲存
+
+        // 初次載入資料
         const allInputs = document.querySelectorAll('input[data-key]');
         allInputs.forEach(function(input) {
             const key = input.dataset.key;
             const stored = localStorage.getItem(key);
             if (stored) input.value = stored;
+        });
+
+        // 設定輸入即時儲存 & 變更時更新刪除按鈕可見性
+        allInputs.forEach(function(input) {
             input.addEventListener('input', function() {
-                localStorage.setItem(key, input.value);
+                localStorage.setItem(input.dataset.key, input.value);
+                // 當該列任一欄有內容，顯示刪除
+                const tr = input.closest('tr');
+                const idx = parseInt(tr.firstChild.textContent, 10);
+                updateDeleteVisibility(idx, tr);
             });
         });
+
+        // 初始化每列刪除按鈕的可見性
+        for (let i = 1; i <= 100; i++) {
+            const tr = tbody.children[i-1];
+            updateDeleteVisibility(i, tr);
+        }
+
+        function updateDeleteVisibility(i, trElem) {
+            const hasAny = fields.some(f => {
+                const v = localStorage.getItem('friend_' + i + '_' + f);
+                return v && v.trim() !== '';
+            });
+            const delEl = trElem.querySelector('.delete-link');
+            if (delEl) delEl.style.display = hasAny ? 'inline' : 'none';
+        }
     });
     </script>
 </body>
