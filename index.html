@@ -1,475 +1,189 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline' https://www.gstatic.com https://www.gstatic.com/firebasejs https://apis.google.com https://accounts.google.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.gstatic.com https://lh3.googleusercontent.com; frame-src 'self' https://rucefar.github.io https://accounts.google.com https://winplus-6fe62.firebaseapp.com; connect-src https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://www.googleapis.com;">
-<title>WinPlus+ | 數位戰鬥與成長手冊</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=Caveat:wght@400;600&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<style>
-/* ══════════════════════════════════════════
-   全域基礎設定與登入畫面
-══════════════════════════════════════════ */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-family: 'Noto Sans TC', sans-serif; }
+!DOCTYPE html
+html lang=zh-TW
+head
+meta charset=UTF-8
+meta name=viewport content=width=device-width, initial-scale=1.0
 
-.noise-bg {
-    background-color: #f4f1ea;
-    background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    background-size: 30px 30px, auto;
+titleWinPlus+  Digital Growth Systemtitle
+
+link href=httpsfonts.googleapis.comcss2family=Noto+Sans+TCwght@300;400;700&display=swap rel=stylesheet
+script src=httpsaccounts.google.comgsiclient async deferscript
+
+style
+body {
+  margin0;
+  font-family'Noto Sans TC';
+  background#f4f1ea;
 }
 
-.app-view { display: none; }
-.app-view.active { display: block; }
-#home-view.active { display: flex; }
+.center {
+  displayflex;
+  justify-contentcenter;
+  align-itemscenter;
+  height100vh;
+}
 
-#login-overlay { position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.login-box { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 3rem; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; border: 1px solid rgba(255,255,255,0.5); }
-.login-box h1 { font-family: 'Noto Serif TC', serif; color: #2d3436; margin-bottom: 1rem; font-weight: 900; }
-.login-box p { color: #636e72; font-size: 0.9rem; line-height: 1.6; }
+.card {
+  background#fff;
+  padding40px;
+  border-radius20px;
+  box-shadow0 10px 30px rgba(0,0,0,0.1);
+  text-aligncenter;
+}
 
-.cloud-status { font-size: 0.75rem; color: #888; margin-left: 10px; font-weight: 500; }
-.user-profile { font-size: 0.8rem; color: rgba(0,0,0,0.6); margin-left: auto; margin-right: 15px; font-weight: 700; }
-.logout-btn { background: transparent; border: 1px solid rgba(0,0,0,0.3); color: #333; border-radius: 12px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; transition: background 0.2s; }
-.logout-btn:hover { background: rgba(255,0,0,0.1); border-color: rgba(255,0,0,0.5); color: #e85a5a; }
+.nav {
+  positionfixed;
+  top0;
+  width100%;
+  background#1e1e1e;
+  color#fff;
+  displayflex;
+  padding10px;
+  align-itemscenter;
+}
 
-#nav .cloud-status { color: rgba(255,255,255,0.6); margin-left: auto; }
-#nav .user-profile { color: rgba(255,255,255,0.8); }
-#nav .logout-btn { color: #fff; border-color: rgba(255,255,255,0.3); }
+.nav span {
+  margin-right15px;
+}
 
-/* ══════════════════════════════════════════
-   首頁樣式
-══════════════════════════════════════════ */
-#home-view { --bg-color: #f4f1ea; --text-main: #2d3436; --accent-liofan: #8b2020; --accent-winplus: #e8a045; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; }
-#home-view .header { text-align: center; margin-bottom: 3rem; }
-#home-view .header h1 { font-family: 'Noto Serif TC', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; letter-spacing: 0.2em; background: linear-gradient(135deg, var(--accent-liofan), var(--accent-winplus)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-#home-view .container { display: flex; gap: 2.5rem; max-width: 1000px; width: 100%; flex-wrap: wrap; justify-content: center; }
-#home-view .card { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border-radius: 24px; padding: 3rem 2rem; width: 450px; text-align: center; cursor: pointer; transition: all 0.4s; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-#home-view .card.liofan { border-top: 6px solid var(--accent-liofan); }
-#home-view .card.winplus { border-top: 6px solid var(--accent-winplus); }
-#home-view .card:hover { transform: translateY(-12px); box-shadow: 0 20px 50px rgba(0,0,0,0.12); }
+.btn {
+  padding8px 16px;
+  bordernone;
+  border-radius10px;
+  cursorpointer;
+}
 
-/* ══════════════════════════════════════════
-   了凡日記視圖 CSS
-══════════════════════════════════════════ */
-#liofan-view { --ink: #1a1208; --brush: #3d2b1f; --paper: #f5ede0; --paper2: #ede0cc; --silk: #c8a87a; --gold: #b8952a; --red: #8b2020; --sage: #5a7a5a; --shadow: rgba(61,43,31,0.12); background: var(--paper); font-family: 'Noto Serif TC', serif; color: var(--ink); min-height: 100vh; position: relative; overflow-y: auto; padding-bottom: 2rem; }
-#liofan-view .back-btn { background: var(--paper2); border: 1px solid var(--silk); color: var(--brush); padding: 6px 12px; cursor: pointer; border-radius: 4px; }
-#liofan-view .site-header { text-align: center; padding: 3rem 1rem 2rem; }
-#liofan-view .title-cn { font-size: 3rem; font-weight: 900; color: var(--brush); }
-#liofan-view .week-nav { display: flex; justify-content: center; gap: 1rem; padding: 1rem; }
-#liofan-view .week-btn { background: none; border: 1.5px solid var(--silk); color: var(--brush); padding: 0.5rem 1.2rem; cursor: pointer; }
-#liofan-view .week-btn.active { background: var(--brush); color: var(--paper); }
-#liofan-view .day-pills { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
-#liofan-view .day-pill { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--paper2); background: var(--paper2); cursor: pointer; }
-#liofan-view .day-pill.active { background: var(--red); color: white; }
-#liofan-view .journal-card { max-width: 800px; margin: 1.5rem auto; padding: 0 1rem; }
-#liofan-view .card-inner { background: #fdf8f1; border: 1px solid var(--paper2); padding: 2.5rem; position: relative; }
-#liofan-view .copywrite-area { width: 100%; min-height: 120px; line-height: 33px; background: repeating-linear-gradient(transparent, transparent 32px, var(--paper2) 32px, var(--paper2) 33px); border: 1px solid var(--paper2); padding: 8px 12px; }
+.main {
+  padding-top60px;
+  text-aligncenter;
+}
 
-/* ══════════════════════════════════════════
-   WinPlus 視圖 CSS
-══════════════════════════════════════════ */
-#winplus-view { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; background: #fff; }
-#nav { position: absolute; top: 0; left: 0; right: 0; height: 50px; background: #1e1e1e; z-index: 9000; display: flex; align-items: center; padding: 0 8px; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-.tab-btn { padding: 4px 9px; border: 1.5px solid rgba(255,255,255,.25); background: transparent; color: rgba(255,255,255,.6); font-size: .7rem; cursor: pointer; border-radius: 18px; white-space: nowrap; }
-.tab-btn.active { background: #e8a045; color: #fff; border-color: #e8a045; }
-.page { position: absolute; top: 50px; left: 0; right: 0; bottom: 0; overflow: hidden; display: none; visibility: hidden; pointer-events: none; z-index: 1; }
-.page.active { display: block; visibility: visible; pointer-events: auto; z-index: 10; }
+.status {
+  font-size12px;
+  opacity0.8;
+}
 
-/* 曼陀羅九宮格樣式 */
-#page-mandala { background: #fff; overflow: auto; align-items: center; justify-content: center; }
-#winplus-view { --grid-size: min(clamp(252px, 58vw, 680px), clamp(252px, calc(100vh - 170px), 680px)); }
-.mandala-wrapper { display: flex; gap: 20px; padding: 20px; align-items: flex-start; }
-.big-grid { display: grid; grid-template-columns: repeat(9, 1fr); border: 2.5px solid #222; background: #222; gap: 1px; width: var(--grid-size); height: var(--grid-size); }
-.m-cell { background: #fff; position: relative; }
-.m-cell textarea { position: absolute; inset: 0; width: 100%; height: 100%; border: none; text-align: center; resize: none; font-size: 0.6rem; padding: 10px 2px; }
-.cell-code { position: absolute; top: 2px; left: 3px; font-size: 0.5rem; color: rgba(0,0,0,0.2); pointer-events: none; }
+style
+head
 
-/* 90天跟進表 & 百戰圖美化 */
-#page-followup, #page-battles { background-color: #fcfaf7; padding: 25px; overflow-y: auto; }
-.fu-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #ede8e0; box-shadow: 0 8px 20px rgba(0,0,0,0.03); }
-.fu-name-tag { font-family: 'Noto Serif TC', serif; font-size: 1.2rem; font-weight: 900; color: #2d3436; }
-.fu-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; background: #fdfaf5; padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 0.85rem; }
-.fu-tag-check { padding: 4px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.7rem; cursor: pointer; background: #fff; display: inline-block; margin: 2px; }
-.fu-tag-check.active { background: #e8a04515; border-color: #e8a045; color: #d09030; font-weight: 700; }
-.battle-hero { background: #2d3436; color: #fff; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
-.battle-grid-canvas { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; max-width: 500px; margin: 0 auto; background: #f0ece6; padding: 10px; border-radius: 12px; }
-.battle-cell-box { aspect-ratio: 1; background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 2px solid #ddd; transition: 0.1s; }
-.battle-cell-box.filled::after { content: '✕'; font-family: 'Caveat'; color: #d63031; font-size: 1.5rem; }
-.battle-fill { height: 100%; background: linear-gradient(90deg, #e8a045, #d63031); width: 0%; transition: width 0.5s; }
+body
 
-/* CRM 看板樣式 */
-#page-crm { background: #f4f1ea; padding: 16px; overflow-y: auto; }
-.kanban-board { display: flex; gap: 20px; height: 100%; overflow-x: auto; padding-bottom: 15px; }
-.kanban-col { background: rgba(255,255,255,0.5); border-top: 4px solid #ccc; border-radius: 16px; min-width: 300px; flex: 1; padding: 16px; display: flex; flex-direction: column; }
-.crm-card { background: #fff; padding: 18px; border-radius: 14px; margin-bottom: 16px; border-left: 5px solid #4a7c8e; cursor: grab; position: relative; }
+!-- 登入 --
+div id=login class=center
+  div class=card
+    h2WinPlus+h2
+    div id=google-btndiv
+    p id=login-errorp
+  div
+div
 
-/* Cork Board 樣式 */
-#page-cork { background-color: #b07840; background-image: radial-gradient(ellipse at 30% 40%, #d4a055 0%, #b07030 45%, #8a5020 100%); position: relative; }
-.sticky { position: absolute; width: 200px; min-height: 150px; background: #fdf876; box-shadow: 4px 6px 16px rgba(0,0,0,.4); cursor: grab; padding: 10px; }
+!-- 主畫面 --
+div id=app style=displaynone;
+  div class=nav
+    spanWinPlus+span
+    span id=userspan
+    span id=cloud class=status☁️ 未同步span
+    button class=btn onclick=logout()登出button
+  div
 
-/* Mind Map 樣式 */
-#page-mindmap { background: #f5f1ea; position: relative; }
-#mm-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.mm-node { position: absolute; transform: translate(-50%, -50%); cursor: grab; z-index: 10; }
-.mm-node-inner { padding: 8px 14px; border-radius: 26px; background: #fff; border: 2px solid #ddd; }
+  div class=main
+    h1你的成長系統已啟動 🚀h1
+    p開始記錄與累積你的戰果p
 
-/* Time Block 樣式 */
-#page-timeblock { background: #f8f7f5; display: flex; flex-direction: column; }
-#tb-timeline { position: relative; flex: 1; overflow-y: auto; background: #fff; padding: 20px; }
-.tb-hour-row { height: 60px; border-top: 1px solid #eee; display: flex; align-items: flex-start; }
+    textarea id=note style=width80%;height200px;textarea
+  div
+div
 
-/* Notebook 樣式 */
-#page-notebook { background: #fff; display: flex; }
-#nb-sidebar { width: 220px; border-right: 1px solid #eee; overflow-y: auto; }
-#nb-editor-wrap { flex: 1; padding: 20px; }
-</style>
-</head>
-<body>
+script type=module
 
-<div id="login-overlay" class="noise-bg">
-    <div class="login-box">
-        <h1>WinPlus+</h1>
-        <p>數位戰鬥與成長空間</p>
-        <div id="google-btn-container" style="display: flex; justify-content: center; margin-top: 2rem; min-height: 40px;"></div>
-        <div id="login-error" style="margin-top:12px; font-size:0.8rem; color:#e85a5a;"></div>
-    </div>
-</div>
-
-<div id="home-view" class="app-view active noise-bg">
-    <header class="header">
-        <h1>Mindful Core, Digital Leverage.</h1>
-        <p>『心有定見，行有高效』— WinPlus+ 個人成長系統</p>
-    </header>
-    <main class="container">
-        <div class="card liofan" onclick="window.switchApp('liofan')">
-            <div class="icon">🖋️</div>
-            <h2>21天感恩與復盤日記</h2>
-            <p>透過抄寫與省思錄，實踐斷惡修善。</p>
-        </div>
-        <div class="card winplus" onclick="window.switchApp('winplus')">
-            <div class="icon">🚀</div>
-            <h2>WinPlus+ 戰鬥手扎</h2>
-            <p>目標管理與事業跟進系統。</p>
-        </div>
-    </main>
-</div>
-
-<div id="liofan-view" class="app-view">
-    <button class="back-btn" style="position: absolute; top: 1rem; left: 1rem; z-index: 100;" onclick="window.switchApp('home')">← 回首頁</button>
-    <header class="site-header">
-      <div class="title-cn">21天感恩與復盤日記</div>
-    </header>
-    <div class="week-nav">
-      <button class="week-btn active" onclick="window.showWeek(1)">第一週｜立命</button>
-      <button class="week-btn" onclick="window.showWeek(2)">第二週｜改過</button>
-      <button class="week-btn" onclick="window.showWeek(3)">第三週｜積善</button>
-    </div>
-    <div class="day-pills" id="dayPills"></div>
-    <div class="journal-card" id="journalCard">
-        <div class="card-inner">
-            <h2 id="dayTitle">載入中...</h2>
-            <textarea class="copywrite-area" id="mindfulCopy" placeholder="靜心抄寫..."></textarea>
-            <div class="save-row" style="margin-top:20px; text-align:right;">
-                <button onclick="window.saveDay()" style="background: #3d2b1f; color:#fff; padding:8px 20px; cursor:pointer;">儲存今日</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="winplus-view" class="app-view">
-    <div id="nav">
-      <button class="tab-btn" onclick="window.switchApp('home')">← 回首頁</button>
-      <span class="nav-logo">✦ WinPlus+</span>
-      <button class="tab-btn active" onclick="window.gotoPage('followup',this)">📋 90天跟進</button>
-      <button class="tab-btn"       onclick="window.gotoPage('battles',this)">⚔️ 百戰圖</button>
-      <button class="tab-btn"       onclick="window.gotoPage('mandala',this)">⊞ 曼陀羅</button>
-      <button class="tab-btn"       onclick="window.gotoPage('crm',this)">🤝 CRM</button>
-      <button class="tab-btn"       onclick="window.gotoPage('cork',this)">📌 軟木板</button>
-      <button class="tab-btn"       onclick="window.gotoPage('mindmap',this)">🕸 心智圖</button>
-      <button class="tab-btn"       onclick="window.gotoPage('timeblock',this)">🕐 時間塊</button>
-      <button class="tab-btn"       onclick="window.gotoPage('notebook',this)">📓 筆記本</button>
-      <span class="cloud-status">☁️ 雲端狀態</span>
-      <div class="user-profile" id="user-profile-name"></div>
-      <button class="logout-btn" onclick="window.logout()">登出</button>
-    </div>
-
-    <div class="page active" id="page-followup">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="font-family:'Noto Serif TC';">90天跟進管理</h2>
-            <button class="biz-action-btn" style="background:#e8a045; color:#fff; border:none; padding:8px 16px; border-radius:8px; cursor:pointer;" onclick="window.addFollowupUser()">＋ 新增對象</button>
-        </div>
-        <div id="followup-list"></div>
-    </div>
-
-    <div class="page" id="page-battles">
-        <div class="battle-hero">
-            <h2>百戰成功圖</h2>
-            <p>每一次展示計畫不順利時，就在方格打 ✕ [cite: 4]</p>
-        </div>
-        <div class="battle-grid-canvas" id="battle-grid"></div>
-        <div style="max-width:500px; margin:20px auto; text-align:center; padding:20px; background:#fdfaf5; border-radius:15px; border:1px solid #ede8e0;">
-            <div style="display:flex; justify-content:space-between; font-weight:700;">
-                <span>邁向 D.D. 之路</span>
-                <span id="battle-stat-text">0 / 100 挫折</span>
-            </div>
-            <div style="height:10px; background:#eee; border-radius:5px; overflow:hidden; margin:10px 0;">
-                <div id="battle-fill" style="height:100%; background:#d63031; width:0%;"></div>
-            </div>
-            <button onclick="window.resetBattles()" style="border:none; background:none; color:#d63031; cursor:pointer; font-size:0.7rem;">↺ 重置戰鬥圖</button>
-        </div>
-    </div>
-
-    <div class="page" id="page-mandala">
-      <div class="mandala-wrapper">
-        <div class="big-grid" id="big-grid"></div>
-      </div>
-    </div>
-
-    <div class="page" id="page-crm">
-        <div class="kanban-board">
-            <div class="kanban-col" id="col-new"><h3>剛接觸</h3><div class="list"></div></div>
-            <div class="kanban-col" id="col-game"><h3>認識中</h3><div class="list"></div></div>
-            <div class="kanban-col" id="col-read"><h3>分享中</h3><div class="list"></div></div>
-            <div class="kanban-col" id="col-core"><h3>經營中</h3><div class="list"></div></div>
-        </div>
-    </div>
-
-    <div class="page" id="page-cork"><div id="sticky-container"></div></div>
-
-    <div class="page" id="page-mindmap"><svg id="mm-svg"></svg><div id="mm-canvas"></div></div>
-
-    <div class="page" id="page-timeblock"><div id="tb-timeline"></div></div>
-
-    <div class="page" id="page-notebook">
-        <div id="nb-sidebar"></div>
-        <div id="nb-editor-wrap"><div id="nb-editor" contenteditable="true"></div></div>
-    </div>
-</div>
-
-<script type="module">
-// ══════════════════════════════════════════
-// 3. 雲端同步與 Firebase 核心邏輯
-// ══════════════════════════════════════════
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithCredential, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { initializeApp } from httpswww.gstatic.comfirebasejs10.8.1firebase-app.js;
+import { getAuth, GoogleAuthProvider, signInWithCredential, onAuthStateChanged, signOut } from httpswww.gstatic.comfirebasejs10.8.1firebase-auth.js;
+import { getFirestore, doc, setDoc, getDoc } from httpswww.gstatic.comfirebasejs10.8.1firebase-firestore.js;
 
 const firebaseConfig = {
-    apiKey: "AIzaSyArBQTUSpEk2VfLMSe1lLDbhBDNEzZJgtA",
-    authDomain: "rucefar.github.io",
-    projectId: "winplus-6fe62",
-    storageBucket: "winplus-6fe62.firebasestorage.app",
-    messagingSenderId: "635721093721",
-    appId: "1:635721093721:web:12d24d7025514608335748"
+  apiKey AIzaSyArBQTUSpEk2VfLMSe1lLDbhBDNEzZJgtA,
+  authDomain winplus-6fe62.firebaseapp.com,
+  projectId winplus-6fe62,
+  storageBucket winplus-6fe62.appspot.com,
+  messagingSenderId 635721093721,
+  appId 1635721093721web12d24d7025514608335748
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 全域變數定義
-window.currentUserUid = null;
-window.wp_followup = JSON.parse(localStorage.getItem('wp_followup')) || [];
-window.wp_battles = JSON.parse(localStorage.getItem('wp_battles')) || Array(100).fill(false);
-window.liofanDay = 1;
+let uid = null;
 
-// 輔助函式：收集所有本地資料進行備份
-window.collectAllData = () => {
-    const data = {
-        followup: window.wp_followup,
-        battles: window.wp_battles,
-        // 曼陀羅
-        mandala: Array.from({length:81}).map((_,i) => localStorage.getItem('m-'+i)),
-        // CRM
-        crm: JSON.parse(localStorage.getItem('biz_crm') || '[]'),
-        // 軟木板
-        stickies: localStorage.getItem('sticky_data'),
-        // 心智圖
-        mindmap: localStorage.getItem('mm_nodes'),
-        // 時間塊
-        tb_blocks: localStorage.getItem('tb_blocks'),
-        // 筆記本
-        notes: localStorage.getItem('nb_notes'),
-        // 了凡日記
-        liofan: Array.from({length:21}).map((_,i) => localStorage.getItem('day_'+(i+1)))
-    };
-    return data;
+ Google登入
+window.handleCredentialResponse = async (resp) = {
+  const cred = GoogleAuthProvider.credential(resp.credential);
+  await signInWithCredential(auth, cred);
 };
 
-// 輔助函式：從雲端恢復資料到本地
-window.restoreAllData = (data) => {
-    if(!data) return;
-    if(data.followup) { window.wp_followup = data.followup; localStorage.setItem('wp_followup', JSON.stringify(data.followup)); }
-    if(data.battles) { window.wp_battles = data.battles; localStorage.setItem('wp_battles', JSON.stringify(data.battles)); }
-    if(data.mandala) data.mandala.forEach((v,i) => v && localStorage.setItem('m-'+i, v));
-    if(data.crm) localStorage.setItem('biz_crm', JSON.stringify(data.crm));
-    if(data.stickies) localStorage.setItem('sticky_data', data.stickies);
-    if(data.mindmap) localStorage.setItem('mm_nodes', data.mindmap);
-    if(data.tb_blocks) localStorage.setItem('tb_blocks', data.tb_blocks);
-    if(data.notes) localStorage.setItem('nb_notes', data.notes);
-    if(data.liofan) data.liofan.forEach((v,i) => v && localStorage.setItem('day_'+(i+1), v));
-    
-    // 重新渲染當前頁面
-    location.reload(); 
-};
-
-// Firebase 狀態監聽
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        window.currentUserUid = user.uid;
-        document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('user-profile-name').textContent = user.displayName;
-        
-        const snap = await getDoc(doc(db, "users", user.uid));
-        if(snap.exists()) {
-            // 注意：這裡我們只在本地沒資料或主動同步時恢復，避免覆蓋掉剛剛打的字
-            console.log("雲端資料已找到");
-        }
-        window.renderFollowup(); window.renderBattles();
-    } else {
-        document.getElementById('login-overlay').style.display = 'flex';
-    }
-});
-
-// 主動觸發存檔
-window.triggerCloudSave = async () => {
-    if(!window.currentUserUid) return;
-    const data = window.collectAllData();
-    try {
-        await setDoc(doc(db, "users", window.currentUserUid), data, { merge: true });
-        document.querySelectorAll('.cloud-status').forEach(s => s.textContent = "☁️ 已同步");
-    } catch(e) {
-        console.error(e);
-    }
-};
-
-// Google 登入
-window.handleCredentialResponse = async (resp) => {
-    const cred = GoogleAuthProvider.credential(resp.credential);
-    await signInWithCredential(auth, cred);
-};
-
-window.addEventListener('load', () => {
-    if (window.google && google.accounts) {
+window.addEventListener(load, () = {
+  if (window.google) {
     google.accounts.id.initialize({
-        client_id: "635721093721-ebdobeukugpou646db9kt6ij873ejorb.apps.googleusercontent.com",
-        callback: window.handleCredentialResponse
+      client_id 635721093721-ebdobeukugpou646db9kt6ij873ejorb.apps.googleusercontent.com,
+      callback handleCredentialResponse
     });
-    google.accounts.id.renderButton(document.getElementById("google-btn-container"), { theme: "outline", size: "large", width: 250 });
-} else {
-    document.getElementById("login-error").textContent = "Google 登入載入失敗";
-}
-};
 
-window.logout = () => signOut(auth).then(() => { localStorage.clear(); location.reload(); });
-</script>
+    google.accounts.id.renderButton(
+      document.getElementById(google-btn),
+      { theme outline, size large }
+    );
 
-<script>
-// ══════════════════════════════════════════
-// 4. UI 渲染與應用邏輯
-// ══════════════════════════════════════════
-window.switchApp = (id) => {
-    document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
-    document.getElementById(id + '-view').classList.add('active');
-};
-
-window.gotoPage = (name, btn) => {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    const target = document.getElementById('page-' + name);
-    if(target) target.classList.add('active');
-    if(btn) btn.classList.add('active');
-    
-    if(name === 'followup') window.renderFollowup();
-    if(name === 'battles') window.renderBattles();
-};
-
-// --- 跟進表邏輯  ---
-window.renderFollowup = () => {
-    const list = document.getElementById('followup-list');
-    if(!list) return;
-    list.innerHTML = "";
-    window.wp_followup.forEach((u, i) => {
-        const div = document.createElement('div');
-        div.className = 'fu-card';
-        div.innerHTML = `
-            <div class="fu-name-tag">👤 ${u.name}</div>
-            <div class="fu-info-grid">
-                <div><strong>加入日期:</strong> ${u.joinDate || '未填'}</div>
-                <div><strong>目標:</strong> ${u.type || '生活會員'}</div>
-            </div>
-            <div class="fu-check-container">
-                ${['SA8','LOC','洗碟精','牙膏','VitC','營養評估','OPP'].map(p => 
-                    `<div class="fu-tag-check ${u.items?.includes(p)?'active':''}" onclick="window.toggleFuItem(${i}, '${p}')">${p}</div>`
-                ).join('')}
-            </div>
-        `;
-        list.appendChild(div);
-    });
-};
-
-window.addFollowupUser = () => {
-    const name = prompt("夥伴姓名？");
-    if(!name) return;
-    window.wp_followup.unshift({ name, joinDate: new Date().toLocaleDateString(), type: '生活會員', items: [] });
-    window.saveSync(); window.renderFollowup();
-};
-
-window.toggleFuItem = (idx, val) => {
-    const arr = window.wp_followup[idx].items || [];
-    const i = arr.indexOf(val);
-    if(i > -1) arr.splice(i, 1); else arr.push(val);
-    window.wp_followup[idx].items = arr;
-    window.saveSync(); window.renderFollowup();
-};
-
-// --- 百戰圖邏輯 [cite: 3, 4, 8] ---
-window.renderBattles = () => {
-    const grid = document.getElementById('battle-grid');
-    if(!grid) return; grid.innerHTML = "";
-    let count = 0;
-    window.wp_battles.forEach((filled, idx) => {
-        const cell = document.createElement('div');
-        cell.className = 'battle-cell-box' + (filled ? ' filled' : '');
-        if(filled) count++;
-        cell.onclick = () => { window.wp_battles[idx] = !window.wp_battles[idx]; window.saveSync(); window.renderBattles(); };
-        grid.appendChild(cell);
-    });
-    document.getElementById('battle-stat-text').textContent = `${count} / 100 挫折`;
-    document.getElementById('battle-fill').style.width = count + "%";
-};
-
-window.resetBattles = () => { if(confirm("重置戰鬥？")) { window.wp_battles = Array(100).fill(false); window.saveSync(); window.renderBattles(); } };
-
-window.saveSync = () => {
-    localStorage.setItem('wp_followup', JSON.stringify(window.wp_followup));
-    localStorage.setItem('wp_battles', JSON.stringify(window.wp_battles));
-    if(window.triggerCloudSave) window.triggerCloudSave();
-};
-
-// --- 了凡日記邏輯 ---
-window.saveDay = () => {
-    const val = document.getElementById('mindfulCopy').value;
-    localStorage.setItem('day_' + window.liofanDay, val);
-    window.triggerCloudSave();
-};
-
-// --- 曼陀羅初始化 ---
-document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('big-grid');
-    if(grid) {
-        for(let i=0; i<81; i++){
-            const cell = document.createElement('div');
-            cell.className = 'm-cell';
-            const ta = document.createElement('textarea');
-            ta.value = localStorage.getItem('m-'+i) || "";
-            ta.oninput = () => { localStorage.setItem('m-'+i, ta.value); window.triggerCloudSave(); };
-            cell.appendChild(ta); grid.appendChild(cell);
-        }
-    }
+    google.accounts.id.prompt();
+  }
 });
-</script>
-</body>
-</html>
+
+ 登入狀態
+onAuthStateChanged(auth, async (user) = {
+  if (user) {
+    uid = user.uid;
+
+    document.getElementById(login).style.display = none;
+    document.getElementById(app).style.display = block;
+    document.getElementById(user).textContent = user.displayName;
+
+    loadData();
+  }
+});
+
+ 存資料
+async function saveData() {
+  if (!uid) return;
+
+  const status = document.getElementById(cloud);
+  status.textContent = ☁️ 同步中...;
+
+  await setDoc(doc(db, users, uid), {
+    note document.getElementById(note).value
+  });
+
+  status.textContent = ✅ 已同步;
+}
+
+ 讀資料
+async function loadData() {
+  const ref = doc(db, users, uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    document.getElementById(note).value = snap.data().note  ;
+  }
+}
+
+ 自動存
+setInterval(saveData, 10000);
+
+ 登出
+window.logout = () = {
+  signOut(auth);
+  location.reload();
+};
+
+script
+
+body
+html
