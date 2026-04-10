@@ -1162,7 +1162,7 @@ window.showWPToast = function(msg) {
 }
 
 /* ══════════════════════════════════════════
-   地圖系統邏輯
+   地圖系統邏輯 (加入智慧模糊搜尋)
 ══════════════════════════════════════════ */
 window.mapInstance = null;
 window.mapMarkers = [];
@@ -1171,6 +1171,7 @@ window.isMapLoading = false;
 window.initMap = async function(forceRefresh = false) {
     const statusEl = document.getElementById('map-status');
     
+    // 1. 初始化地圖介面
     if (!window.mapInstance) {
         window.mapInstance = L.map('map-container').setView([25.147, 121.399], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1192,16 +1193,17 @@ window.initMap = async function(forceRefresh = false) {
     window.mapMarkers.forEach(m => window.mapInstance.removeLayer(m));
     window.mapMarkers = [];
 
+    // 抓取 90天夥伴系統 中的客戶資料
     const customers = window.nGetCustomers ? window.nGetCustomers() : JSON.parse(localStorage.getItem('crm90_v3') || '[]');
     const customersWithAddress = customers.filter(c => c.address && c.address.trim() !== '');
 
     if (customersWithAddress.length === 0) {
-        statusEl.textContent = '您的 90 天名單中沒有具備地址的客戶資料';
+        statusEl.textContent = '⚠️ 名單中沒有具備「地址」的客戶資料 (請先至90天系統填寫)';
         window.isMapLoading = false;
         return;
     }
 
-    statusEl.textContent = '正在呼叫圖資 API 定位客戶...';
+    statusEl.textContent = `找到 ${customersWithAddress.length} 筆地址，正在呼叫圖資 API 定位...`;
     const stageNames = ['1–30 天', '31–60 天', '61–90 天'];
     const delay = ms => new Promise(res => setTimeout(res, ms));
     let loadedCount = 0;
@@ -1209,9 +1211,26 @@ window.initMap = async function(forceRefresh = false) {
     for (const c of customersWithAddress) {
         try {
             statusEl.textContent = `正在定位：${c.name}...`;
-            const query = encodeURIComponent("台灣" + c.address);
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
-            const data = await res.json();
+            
+            // 1. 先嘗試用完整地址搜尋
+            let query = encodeURIComponent("台灣" + c.address);
+            let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+                headers: { 'Accept-Language': 'zh-TW' }
+            });
+            let data = await res.json();
+
+            // 2. 智慧模糊搜尋：如果找不到，自動去除門牌、巷弄等太細的資訊重新搜尋
+            if (!data || data.length === 0) {
+                let fallbackAddr = c.address.replace(/[0-9０-９]+[巷弄號樓].*/, '');
+                if (fallbackAddr !== c.address && fallbackAddr.trim() !== '') {
+                    await delay(1000); // 避免被 API 阻擋
+                    query = encodeURIComponent("台灣" + fallbackAddr);
+                    res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+                        headers: { 'Accept-Language': 'zh-TW' }
+                    });
+                    data = await res.json();
+                }
+            }
 
             if (data && data.length > 0) {
                 const lat = data[0].lat;
@@ -1225,18 +1244,25 @@ window.initMap = async function(forceRefresh = false) {
                 const marker = L.marker([lat, lon]).addTo(window.mapInstance).bindPopup(popupContent);
                 window.mapMarkers.push(marker);
                 loadedCount++;
+            } else {
+                console.warn(`無法定位地址: ${c.address}`);
             }
-            await delay(1000);
+            
+            // 重要：免費 API 限制每秒只能請求 1 次
+            await delay(1200); 
         } catch (err) {
             console.error("API Error", err);
         }
     }
-    statusEl.textContent = `定位完成！共載入 ${loadedCount} 位客戶`;
     
-    if (window.mapMarkers.length > 0) {
+    if (loadedCount > 0) {
+        statusEl.textContent = `定位完成！共成功載入 ${loadedCount} 位客戶標記`;
         const group = new L.featureGroup(window.mapMarkers);
         window.mapInstance.fitBounds(group.getBounds().pad(0.1));
+    } else {
+        statusEl.textContent = `⚠️ 定位失敗：找到的地址皆太過詳細，免費地圖無法辨識`;
     }
+    
     window.isMapLoading = false;
 };
 
