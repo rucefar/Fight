@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.gstatic.com https://lh3.googleusercontent.com; frame-src 'self' https://rucefar.github.io https://accounts.google.com https://winplus-6fe62.firebaseapp.com; connect-src https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://www.googleapis.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://accounts.google.com https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com https://unpkg.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://www.gstatic.com https://lh3.googleusercontent.com https://*.tile.openstreetmap.org https://unpkg.com; frame-src 'self' https://rucefar.github.io https://accounts.google.com https://winplus-6fe62.firebaseapp.com; connect-src https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com https://www.googleapis.com https://nominatim.openstreetmap.org;">
 <title>WinPlus+ | 自我成長手冊</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=Caveat:wght@400;600&family=Zen+Maru+Gothic&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 /* ══════════════════════════════════════════
@@ -619,6 +620,20 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
     border-radius: 8px;
     margin-top: 5px;
 }
+
+/* ══════════════════════════════════════════
+   地圖系統 CSS
+══════════════════════════════════════════ */
+#home-view .card.map-card { border-top: 6px solid #27ae60; }
+#home-view .card.map-card .icon { color: #27ae60; }
+#home-view .map-card .tag { background: rgba(39,174,96,0.1); color: #27ae60; }
+
+#map-view { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #f4f1ea; display: none; flex-direction: column; }
+#map-view.active { display: flex; }
+.map-topbar { background: #1e1e1e; height: 50px; display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; }
+#map-container { flex: 1; width: 100%; z-index: 1; }
+.map-refresh-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; margin-left: 10px; }
+.map-refresh-btn:hover { background: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
@@ -662,6 +677,13 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
             <p>系統化管理新夥伴的90天跟進歷程，<br>記錄服務引導、課程參與與產品體驗。</p>
             <div class="tag">夥伴培育・跟進管理</div>
         </div>
+
+        <div class="card map-card" onclick="window.switchApp('map')">
+            <div class="icon">🗺️</div>
+            <h2>客戶跟進地圖</h2>
+            <p>將 90 天夥伴名單視覺化，<br>精準掌握區域分佈，提升出門拜訪效率。</p>
+            <div class="tag">區域管理・效率提升</div>
+        </div>
     </main>
 
     <footer class="footer">
@@ -669,7 +691,6 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
     </footer>
 </div>
 
-<!-- ══ 90天夥伴跟進系統 VIEW ══ -->
 <div id="ninety-view" class="app-view">
   <div class="n-topbar">
     <button class="n-back" onclick="window.switchApp('home')">← 回首頁</button>
@@ -678,7 +699,6 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
     <button class="logout-btn" onclick="window.logout()">登出</button>
   </div>
 
-  <!-- 列表頁 -->
   <div id="n-list-page">
     <div class="n-content">
       <div class="n-summary-bar">
@@ -700,7 +720,6 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
     </div>
   </div>
 
-  <!-- 表單頁 -->
   <div id="n-form-page" style="display:none">
     <div class="n-form-wrap">
       <div class="n-form-topbar">
@@ -752,6 +771,16 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
     </div>
   </div>
   <div class="n-toast" id="n-toast"></div>
+</div>
+
+<div id="map-view" class="app-view">
+    <div class="map-topbar">
+        <button class="n-back" onclick="window.switchApp('home')">← 回首頁</button>
+        <span style="color: #fff; font-family: 'Noto Serif TC', serif; font-size: 0.95rem; font-weight: 700;">✦ 客戶跟進地圖</span>
+        <button class="map-refresh-btn" onclick="window.initMap(true)">重新整理座標</button>
+        <span id="map-status" style="color: #e8a045; margin-left: auto; font-size: 0.85rem;">等待載入...</span>
+    </div>
+    <div id="map-container"></div>
 </div>
 
 <div id="liofan-view" class="app-view">
@@ -1085,6 +1114,8 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 /* ── 全域工具函式 ── */
 window.nbEscape = function(str) {
@@ -1104,6 +1135,7 @@ window.switchApp = function(appId) {
     document.getElementById(appId + '-view').classList.add('active');
     if (appId === 'winplus' && typeof window.tbOnShow === 'function') window.tbOnShow();
     if (appId === 'winplus' && typeof window.renderCrm === 'function') window.renderCrm(); 
+    if (appId === 'map' && typeof window.initMap === 'function') window.initMap();
 }
 
 window.gotoPage = function(name, btn) {
@@ -1128,6 +1160,90 @@ window.showWPToast = function(msg) {
   clearTimeout(t._timer); 
   t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2200); 
 }
+
+/* ══════════════════════════════════════════
+   地圖系統邏輯
+══════════════════════════════════════════ */
+window.mapInstance = null;
+window.mapMarkers = [];
+window.isMapLoading = false;
+
+window.initMap = async function(forceRefresh = false) {
+    const statusEl = document.getElementById('map-status');
+    
+    // 1. 初始化地圖介面
+    if (!window.mapInstance) {
+        window.mapInstance = L.map('map-container').setView([25.147, 121.399], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(window.mapInstance);
+    } else {
+        window.mapInstance.invalidateSize();
+    }
+
+    if (window.isMapLoading) return; 
+    
+    if (!forceRefresh && window.mapMarkers.length > 0) {
+        statusEl.textContent = `已載入 ${window.mapMarkers.length} 位客戶 (若有新增客戶請點重新整理)`;
+        return;
+    }
+
+    window.isMapLoading = true;
+    
+    // 清除舊標記
+    window.mapMarkers.forEach(m => window.mapInstance.removeLayer(m));
+    window.mapMarkers = [];
+
+    // 抓取 90天夥伴系統 中的客戶資料
+    const customers = window.nGetCustomers ? window.nGetCustomers() : JSON.parse(localStorage.getItem('crm90_v3') || '[]');
+    const customersWithAddress = customers.filter(c => c.address && c.address.trim() !== '');
+
+    if (customersWithAddress.length === 0) {
+        statusEl.textContent = '您的 90 天名單中沒有具備地址的客戶資料';
+        window.isMapLoading = false;
+        return;
+    }
+
+    statusEl.textContent = '正在呼叫圖資 API 定位客戶...';
+    const stageNames = ['1–30 天', '31–60 天', '61–90 天'];
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    let loadedCount = 0;
+
+    for (const c of customersWithAddress) {
+        try {
+            statusEl.textContent = `正在定位：${c.name}...`;
+            const query = encodeURIComponent("台灣" + c.address);
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
+            const data = await res.json();
+
+            if (data && data.length > 0) {
+                const lat = data[0].lat;
+                const lon = data[0].lon;
+                const popupContent = `
+                    <b style="font-size:1.1em; color:#1a5fb4;">${window.nbEscape ? window.nbEscape(c.name) : c.name}</b><br>
+                    <span style="font-size:0.9em; color:#666;">跟進階段：${stageNames[c.stage] || '未知'}</span><br>
+                    <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
+                    <span style="font-size:0.9em;">地址：${window.nbEscape ? window.nbEscape(c.address) : c.address}</span>
+                `;
+                const marker = L.marker([lat, lon]).addTo(window.mapInstance).bindPopup(popupContent);
+                window.mapMarkers.push(marker);
+                loadedCount++;
+            }
+            // 重要：免費 API 限制每秒只能請求 1 次
+            await delay(1000);
+        } catch (err) {
+            console.error("API Error", err);
+        }
+    }
+    statusEl.textContent = `定位完成！共載入 ${loadedCount} 位客戶`;
+    
+    // 自動將地圖視角縮放到可以看見所有標記的範圍
+    if (window.mapMarkers.length > 0) {
+        const group = new L.featureGroup(window.mapMarkers);
+        window.mapInstance.fitBounds(group.getBounds().pad(0.1));
+    }
+    window.isMapLoading = false;
+};
 
 /* ══════════════════════════════════════════
    CRM 看板邏輯
@@ -1899,210 +2015,6 @@ window.loadStickyState = function() {
         window.addSticky(s.cls, s.x, s.y, s.text, s.rot, s.imgSrc, s.width, s.height);
     });
 };
-/* ══════════════════════════════════════════
-   90天夥伴跟進系統 JS
-══════════════════════════════════════════ */
-(function() {
-  const SERVICES = ['一對一 OPP','會場 OPP','與上手 DD 認識','參觀體驗館','營養評估','生命密碼','會自己訂貨','會用信用卡'];
-  const COURSES  = ['健康管理45課程','寰宇菁英會','U+PLUS','海外特攻營','誓師大會','安麗年會','BTC','產品總導讀','百萬年薪俱樂部'];
-  const PRODUCTS = [
-    { label:'家潔/個人護理', color:'blue',   items:['SA8','LOC','洗碟精','金屬','金剛刷','牙膏','牙刷','蜜乳','浴露','蜂皂'] },
-    { label:'營養保健',      color:'green',  items:['魚油','VitC','酵素','鈣鎂','卵磷脂','營養早餐'] },
-    { label:'美容護理',      color:'pink',   items:['染髮','潔膚','卸妝乳','抗皺','煥膚'] },
-    { label:'高科技',        color:'indigo', items:['刮痧','淨水器','空氣清淨機','不沾鍋','金鍋'] }
-  ];
-  const STAGE_NAMES = ['1–30 天','31–60 天','61–90 天'];
-  const STAGE_CLS   = ['n-s1','n-s2','n-s3'];
-
-  let nCustomers = [];
-  let nCurrentId = null;
-  let nSearchQ   = '';
-
-  // ── 資料存取 ──
-  function nSaveLocal() {
-    localStorage.setItem('crm90_v3', JSON.stringify(nCustomers));
-    if (window.triggerCloudSave) window.triggerCloudSave();
-  }
-  window.nLoadCustomers = function(data) {
-    nCustomers = data && Array.isArray(data) ? data : [];
-    nRenderList();
-  };
-  window.nGetCustomers = function() { return nCustomers; };
-
-  function nInitData() {
-    try { nCustomers = JSON.parse(localStorage.getItem('crm90_v3') || '[]'); } catch(e) { nCustomers = []; }
-    if (!nCustomers.length) {
-      nCustomers = [
-        { id:1, name:'王小明', date:'2025-03-10', dd:'李大華', reason:'改善健康狀況', stage:0, services:['一對一 OPP','與上手 DD 認識'], courses:['BTC'], products:['SA8','魚油'] },
-        { id:2, name:'陳美玲', date:'2025-02-15', dd:'李大華', reason:'增加收入來源', stage:1, services:['一對一 OPP','會場 OPP','參觀體驗館','營養評估'], courses:['健康管理45課程','BTC'], products:['VitC','牙膏'] },
-        { id:3, name:'林志偉', date:'2025-01-20', dd:'張三',   reason:'事業發展',   stage:2, services:SERVICES.slice(0,6), courses:['BTC','產品總導讀'], products:['魚油','VitC','SA8'] },
-      ];
-      nSaveLocal();
-    }
-  }
-
-  // ── 渲染列表 ──
-  function nInitials(name) { return name ? name.slice(0,2) : '??'; }
-  function nProgressDots(svs) {
-    const n = Math.round((svs.length / SERVICES.length) * 8);
-    let h = '';
-    for (let i=0;i<8;i++) h += `<div class="n-pdot${i<n?' on':''}"></div>`;
-    return h;
-  }
-
-  window.nRenderList = function() {
-    const filtered = nSearchQ ? nCustomers.filter(c => c.name.includes(nSearchQ)) : nCustomers;
-    let html = '';
-    for (let s=0;s<3;s++) {
-      const grp = filtered.filter(c => c.stage === s);
-      html += `<div class="n-stage-block ${STAGE_CLS[s]}">
-        <div class="n-stage-hdr">
-          <span class="n-stage-lbl">${STAGE_NAMES[s]}</span>
-          <span class="n-stage-cnt">${grp.length} 位</span>
-          <div class="n-stage-line"></div>
-        </div>
-        <div class="n-grid">`;
-      grp.forEach(c => {
-        html += `<div class="n-ccard" onclick="nOpenEdit(${c.id})">
-          <div class="n-avatar">${nInitials(c.name)}</div>
-          <div class="n-cname">${c.name}</div>
-          <div class="n-cmeta">${c.date||''}${c.dd?'<br>DD: '+c.dd:''}</div>
-          <div class="n-pdots">${nProgressDots(c.services||[])}</div>
-        </div>`;
-      });
-      html += `<button class="n-add-card" onclick="nOpenNew(${s})"><span style="font-size:20px;line-height:1">+</span><span>新增客戶</span></button>
-        </div></div>`;
-    }
-    document.getElementById('n-stage-blocks').innerHTML = html;
-    for (let s=0;s<3;s++) {
-      const el = document.getElementById('n-cnt'+s);
-      if (el) el.textContent = nCustomers.filter(c=>c.stage===s).length;
-    }
-  };
-
-  window.nFilterCustomers = function(q) { nSearchQ = q; nRenderList(); };
-
-  // ── 開啟表單 ──
-  window.nOpenNew = function(stage) {
-    nCurrentId = null;
-    document.getElementById('n-form-title').textContent = '新增客戶';
-    document.getElementById('n-delete-btn').style.display = 'none';
-    nClearForm();
-    nSetStageToggle(stage);
-    nBuildFormUI({ stage, services:[], courses:[], products:[] });
-    nShowForm();
-  };
-
-  window.nOpenEdit = function(id) {
-    const c = nCustomers.find(x => x.id === id);
-    if (!c) return;
-    nCurrentId = id;
-    document.getElementById('n-form-title').textContent = c.name || '客戶資料';
-    document.getElementById('n-delete-btn').style.display = 'block';
-    nSetStageToggle(c.stage||0);
-    nBuildFormUI(c);
-    document.getElementById('nf-name').value    = c.name||'';
-    document.getElementById('nf-date').value    = c.date||'';
-    document.getElementById('nf-dd').value      = c.dd||'';
-    document.getElementById('nf-address').value = c.address||'';
-    document.getElementById('nf-reason').value  = c.reason||'';
-    nShowForm();
-  };
-
-  function nShowForm() {
-    document.getElementById('n-list-page').style.display = 'none';
-    document.getElementById('n-form-page').style.display = 'block';
-    document.getElementById('ninety-view').scrollTop = 0;
-  }
-
-  window.nGoBack = function() {
-    document.getElementById('n-form-page').style.display = 'none';
-    document.getElementById('n-list-page').style.display = 'block';
-    nRenderList();
-  };
-
-  function nClearForm() {
-    ['nf-name','nf-date','nf-dd','nf-address','nf-reason'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-  }
-
-  function nSetStageToggle(s) {
-    document.querySelectorAll('.n-stg-btn').forEach((b,i) => b.classList.toggle('active', i===s));
-  }
-
-  window.nSetStage = function(s, btn) {
-    document.querySelectorAll('.n-stg-btn').forEach((b,i) => b.classList.toggle('active', i===s));
-  };
-
-  function nBuildFormUI(data) {
-    const sv = data.services||[], co = data.courses||[], pr = data.products||[];
-    document.getElementById('n-service-checks').innerHTML = SERVICES.map(s =>
-      `<div class="n-chk${sv.includes(s)?' on':''}" onclick="this.classList.toggle('on')">
-        <div class="n-chk-box"><span class="n-chk-mark">✓</span></div><span>${s}</span></div>`
-    ).join('');
-    document.getElementById('n-course-tags').innerHTML = COURSES.map(c =>
-      `<span class="n-tag purple${co.includes(c)?' on':''}" onclick="this.classList.toggle('on')">${c}</span>`
-    ).join('');
-    document.getElementById('n-product-tags').innerHTML = PRODUCTS.map(g =>
-      `<div class="n-tag-sec"><div class="n-tag-sec-lbl">${g.label}</div><div class="n-tags">${
-        g.items.map(item => `<span class="n-tag ${g.color}${pr.includes(item)?' on':''}" onclick="this.classList.toggle('on')">${item}</span>`).join('')
-      }</div></div>`
-    ).join('');
-  }
-
-  function nGetSelectedStage() {
-    return [...document.querySelectorAll('.n-stg-btn')].findIndex(b => b.classList.contains('active'));
-  }
-
-  window.nSaveCustomer = function() {
-    const name = document.getElementById('nf-name').value.trim();
-    if (!name) { nShowToast('請填寫姓名','#b03030'); return; }
-    const data = {
-      name, date: document.getElementById('nf-date').value,
-      dd: document.getElementById('nf-dd').value.trim(),
-      address: document.getElementById('nf-address').value.trim(),
-      reason: document.getElementById('nf-reason').value.trim(),
-      stage: nGetSelectedStage(),
-      services: [...document.querySelectorAll('#n-service-checks .n-chk.on')].map(el => el.querySelector('span').textContent),
-      courses:  [...document.querySelectorAll('#n-course-tags .n-tag.on')].map(el => el.textContent),
-      products: [...document.querySelectorAll('#n-product-tags .n-tag.on')].map(el => el.textContent),
-    };
-    if (nCurrentId) {
-      const idx = nCustomers.findIndex(c => c.id === nCurrentId);
-      nCustomers[idx] = { ...nCustomers[idx], ...data };
-    } else {
-      const newId = nCustomers.length ? Math.max(...nCustomers.map(c=>c.id))+1 : 1;
-      nCustomers.push({ id: newId, ...data });
-    }
-    nSaveLocal();
-    nShowToast('已儲存 ✓');
-    setTimeout(nGoBack, 700);
-  };
-
-  window.nDeleteCustomer = function() {
-    if (!nCurrentId) return;
-    if (!confirm('確定要刪除此客戶的所有資料？')) return;
-    nCustomers = nCustomers.filter(c => c.id !== nCurrentId);
-    nSaveLocal();
-    nShowToast('已刪除');
-    setTimeout(nGoBack, 500);
-  };
-
-  function nShowToast(msg, color) {
-    const t = document.getElementById('n-toast');
-    if (!t) return;
-    t.textContent = msg;
-    t.style.background = color || '#0e7d5a';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
-  }
-
-  // ── 初始化 ──
-  document.addEventListener('DOMContentLoaded', function() {
-    nInitData();
-    nRenderList();
-  });
-})();
-
 /* ══════════════════════════════════════════
    雲端同步打包與解包 (防護罩版本)
 ══════════════════════════════════════════ */
