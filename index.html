@@ -1162,7 +1162,7 @@ window.showWPToast = function(msg) {
 }
 
 /* ══════════════════════════════════════════
-   地圖系統邏輯 (終極三段式地址解析版)
+   地圖系統邏輯 (終極三段式 + 無標點符號高辨識版)
 ══════════════════════════════════════════ */
 window.mapInstance = null;
 window.mapMarkers = [];
@@ -1183,8 +1183,9 @@ window.initMap = async function(forceRefresh = false) {
 
     if (window.isMapLoading) return; 
     
+    // 防呆機制：如果已經有標記，且沒有要求強制更新，就直接返回
     if (!forceRefresh && window.mapMarkers.length > 0) {
-        statusEl.textContent = `已載入 ${window.mapMarkers.length} 位客戶 (若有新增客戶請點重新整理)`;
+        statusEl.textContent = `已載入 ${window.mapMarkers.length} 位客戶 (若有新增客戶請點擊上方「重新整理座標」)`;
         return;
     }
 
@@ -1216,19 +1217,19 @@ window.initMap = async function(forceRefresh = false) {
 
             // ── 終極三段式搜尋策略 ──
             let searchQueries = [
-                c.address, // 1. 原始完整地址
-                c.address.replace(/[0-9０-９]+[巷弄號樓Ff].*/, ''), // 2. 拔除巷弄號碼
-                (c.address.match(/.*?[縣市].*?[區鄉鎮市].*?[路街大道段]/) || [])[0] // 3. 強制只擷取到 路/街/大道/段
+                c.address, // 1. 原始完整地址 (e.g. 新北市三重區碧華街294巷)
+                c.address.replace(/[0-9０-９]+[巷弄號樓Ff].*/, ''), // 2. 拔除巷弄號碼 (e.g. 新北市三重區碧華街)
+                (c.address.match(/.*?[縣市].*?[區鄉鎮市].*?[路街大道段]/) || [])[0] // 3. 強制擷取到路街名
             ];
             
-            // 去除陣列中的空值與重複項，減少不必要的 API 請求
+            // 去除陣列中的空值與重複項
             searchQueries = [...new Set(searchQueries)].filter(q => q && q.trim() !== '');
 
             for (let addr of searchQueries) {
-                if (lat && lon) break; // 如果上一個策略已經找到了，就跳出迴圈
+                if (lat && lon) break; 
                 
-                // 正確的地圖搜尋格式：地址後加上逗號與國家
-                let query = encodeURIComponent(addr + ", 台灣");
+                // 改用「台灣 + 空格 + 地址」，移除容易導致外國 API 判斷錯誤的逗號
+                let query = encodeURIComponent("台灣 " + addr);
                 let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
                     headers: { 'Accept-Language': 'zh-TW' }
                 });
@@ -1239,11 +1240,10 @@ window.initMap = async function(forceRefresh = false) {
                     lon = data[0].lon;
                 }
                 
-                // 重要：免費 API 限制每秒只能請求 1 次，否則會被鎖 IP
+                // 免費 API 限制每秒請求 1 次
                 await delay(1200); 
             }
 
-            // 如果成功拿到座標，就放上大頭針
             if (lat && lon) {
                 const popupContent = `
                     <b style="font-size:1.1em; color:#1a5fb4;">${window.nbEscape ? window.nbEscape(c.name) : c.name}</b><br>
@@ -1265,14 +1265,13 @@ window.initMap = async function(forceRefresh = false) {
     
     if (loadedCount > 0) {
         statusEl.textContent = `定位完成！共成功載入 ${loadedCount} 位客戶標記`;
-        // 自動將地圖視角縮放到可以看見所有標記的範圍
         const group = new L.featureGroup(window.mapMarkers);
         window.mapInstance.fitBounds(group.getBounds().pad(0.1));
     } else {
         statusEl.textContent = `⚠️ 定位失敗：免費地圖圖資無法辨識您輸入的地址格式`;
     }
     
-  window.isMapLoading = false;
+    window.isMapLoading = false;
 };
 
 /* ══════════════════════════════════════════
