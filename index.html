@@ -1182,12 +1182,6 @@ window.initMap = async function(forceRefresh = false) {
     }
 
     if (window.isMapLoading) return; 
-    
-    // 防呆機制：如果已經有標記，且沒有要求強制更新，就直接返回
-    if (!forceRefresh && window.mapMarkers.length > 0) {
-        statusEl.textContent = `已載入 ${window.mapMarkers.length} 位客戶 (若有新增客戶請點擊上方「重新整理座標」)`;
-        return;
-    }
 
     window.isMapLoading = true;
     
@@ -1200,80 +1194,89 @@ window.initMap = async function(forceRefresh = false) {
     const customersWithAddress = customers.filter(c => c.address && c.address.trim() !== '');
 
     if (customersWithAddress.length === 0) {
-        statusEl.textContent = '⚠️ 名單中沒有具備「地址」的客戶資料 (請先至90天系統填寫)';
+        statusEl.textContent = '⚠️ 名單中沒有具備「地址」的客戶資料';
         window.isMapLoading = false;
         return;
     }
 
-    statusEl.textContent = `找到 ${customersWithAddress.length} 筆地址，正在呼叫圖資 API 定位...`;
+    statusEl.textContent = `正在載入 ${customersWithAddress.length} 筆客戶位置...`;
     const stageNames = ['1–30 天', '31–60 天', '61–90 天'];
     const delay = ms => new Promise(res => setTimeout(res, ms));
     let loadedCount = 0;
+    let needsSave = false; // 紀錄是否有新查詢到的座標需要存檔
 
     for (const c of customersWithAddress) {
-        try {
-            statusEl.textContent = `正在定位：${c.name}...`;
-            let lat = null, lon = null;
+        let lat = c.lat;
+        let lon = c.lon;
 
-            // ── 終極三段式搜尋策略 ──
-            let searchQueries = [
-                c.address, // 1. 原始完整地址 (e.g. 新北市三重區碧華街294巷)
-                c.address.replace(/[0-9０-９]+[巷弄號樓Ff].*/, ''), // 2. 拔除巷弄號碼 (e.g. 新北市三重區碧華街)
-                (c.address.match(/.*?[縣市].*?[區鄉鎮市].*?[路街大道段]/) || [])[0] // 3. 強制擷取到路街名
-            ];
-            
-            // 去除陣列中的空值與重複項
-            searchQueries = [...new Set(searchQueries)].filter(q => q && q.trim() !== '');
-
-            for (let addr of searchQueries) {
-                if (lat && lon) break; 
+        // 如果沒有快取座標，或是按下強制更新，才呼叫 API
+        if (!lat || !lon || forceRefresh) {
+            try {
+                statusEl.textContent = `正在雲端定位新地址：${c.name}...`;
                 
-                // 改用「台灣 + 空格 + 地址」，移除容易導致外國 API 判斷錯誤的逗號
-                let query = encodeURIComponent("台灣 " + addr);
-                let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
-                    headers: { 'Accept-Language': 'zh-TW' }
-                });
-                let data = await res.json();
+                let searchQueries = [
+                    c.address, 
+                    c.address.replace(/[0-9０-９]+[巷弄號樓Ff].*/, ''), 
+                    (c.address.match(/.*?[縣市].*?[區鄉鎮市].*?[路街大道段]/) || [])[0] 
+                ];
+                searchQueries = [...new Set(searchQueries)].filter(q => q && q.trim() !== '');
 
-                if (data && data.length > 0) {
-                    lat = data[0].lat;
-                    lon = data[0].lon;
+                for (let addr of searchQueries) {
+                    if (lat && lon) break; 
+                    
+                    let query = encodeURIComponent("台灣 " + addr);
+                    let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+                        headers: { 'Accept-Language': 'zh-TW' }
+                    });
+                    let data = await res.json();
+
+                    if (data && data.length > 0) {
+                        lat = data[0].lat;
+                        lon = data[0].lon;
+                        // 將查到的座標寫入客戶物件中
+                        c.lat = lat;
+                        c.lon = lon;
+                        needsSave = true; // 標記需要存檔
+                    }
+                    await delay(1200); // API 延遲
                 }
-                
-                // 免費 API 限制每秒請求 1 次
-                await delay(1200); 
+            } catch (err) {
+                console.error("API Error", err);
             }
-
-            if (lat && lon) {
-                const popupContent = `
-                    <b style="font-size:1.1em; color:#1a5fb4;">${window.nbEscape ? window.nbEscape(c.name) : c.name}</b><br>
-                    <span style="font-size:0.9em; color:#666;">跟進階段：${stageNames[c.stage] || '未知'}</span><br>
-                    <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
-                    <span style="font-size:0.9em;">原始地址：${window.nbEscape ? window.nbEscape(c.address) : c.address}</span>
-                `;
-                const marker = L.marker([lat, lon]).addTo(window.mapInstance).bindPopup(popupContent);
-                window.mapMarkers.push(marker);
-                loadedCount++;
-            } else {
-                console.warn(`徹底無法定位地址: ${c.address}`);
-            }
-            
-        } catch (err) {
-            console.error("API Error", err);
         }
+
+        // 如果有座標 (不管是剛查到的還是以前存好的)，直接放上大頭針
+        if (lat && lon) {
+            const popupContent = `
+                <b style="font-size:1.1em; color:#1a5fb4;">${window.nbEscape ? window.nbEscape(c.name) : c.name}</b><br>
+                <span style="font-size:0.9em; color:#666;">跟進階段：${stageNames[c.stage] || '未知'}</span><br>
+                <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
+                <span style="font-size:0.9em;">地址：${window.nbEscape ? window.nbEscape(c.address) : c.address}</span>
+            `;
+            const marker = L.marker([lat, lon]).addTo(window.mapInstance).bindPopup(popupContent);
+            window.mapMarkers.push(marker);
+            loadedCount++;
+        } else {
+            console.warn(`無法定位地址: ${c.address}`);
+        }
+    }
+
+    // 💡 核心機制：如果有查到新座標，自動回存到資料庫並同步 Firebase
+    if (needsSave) {
+        localStorage.setItem('crm90_v3', JSON.stringify(customers));
+        if (window.triggerCloudSave) window.triggerCloudSave();
     }
     
     if (loadedCount > 0) {
-        statusEl.textContent = `定位完成！共成功載入 ${loadedCount} 位客戶標記`;
+        statusEl.textContent = `載入完成！共顯示 ${loadedCount} 位客戶`;
         const group = new L.featureGroup(window.mapMarkers);
         window.mapInstance.fitBounds(group.getBounds().pad(0.1));
     } else {
-        statusEl.textContent = `⚠️ 定位失敗：免費地圖圖資無法辨識您輸入的地址格式`;
+        statusEl.textContent = `⚠️ 定位失敗：無可用座標`;
     }
     
     window.isMapLoading = false;
 };
-
 /* ══════════════════════════════════════════
    90天夥伴跟進系統 JS (修復遺失的部分)
 ══════════════════════════════════════════ */
@@ -1424,23 +1427,34 @@ window.initMap = async function(forceRefresh = false) {
   window.nSaveCustomer = function() {
     const name = document.getElementById('nf-name').value.trim();
     if (!name) { nShowToast('請填寫姓名','#b03030'); return; }
+    
+    const newAddress = document.getElementById('nf-address').value.trim(); // 取得新填寫的地址
+    
     const data = {
-      name, date: document.getElementById('nf-date').value,
+      name, 
+      date: document.getElementById('nf-date').value,
       dd: document.getElementById('nf-dd').value.trim(),
-      address: document.getElementById('nf-address').value.trim(),
+      address: newAddress,
       reason: document.getElementById('nf-reason').value.trim(),
       stage: nGetSelectedStage(),
       services: [...document.querySelectorAll('#n-service-checks .n-chk.on')].map(el => el.querySelector('span').textContent),
       courses:  [...document.querySelectorAll('#n-course-tags .n-tag.on')].map(el => el.textContent),
       products: [...document.querySelectorAll('#n-product-tags .n-tag.on')].map(el => el.textContent),
     };
+
     if (nCurrentId) {
       const idx = nCustomers.findIndex(c => c.id === nCurrentId);
+      // 💡 判斷：如果地址有被修改，就刪除舊的座標快取，讓地圖重新定位
+      if (nCustomers[idx].address !== newAddress) {
+          delete nCustomers[idx].lat;
+          delete nCustomers[idx].lon;
+      }
       nCustomers[idx] = { ...nCustomers[idx], ...data };
     } else {
       const newId = nCustomers.length ? Math.max(...nCustomers.map(c=>c.id))+1 : 1;
       nCustomers.push({ id: newId, ...data });
     }
+    
     nSaveLocal();
     nShowToast('已儲存 ✓');
     setTimeout(window.nGoBack, 700);
