@@ -1162,7 +1162,7 @@ window.showWPToast = function(msg) {
 }
 
 /* ══════════════════════════════════════════
-   地圖系統邏輯 (終極三段式 + 無標點符號高辨識版)
+   地圖系統邏輯 (強制鎖定台灣版 + 座標快取)
 ══════════════════════════════════════════ */
 window.mapInstance = null;
 window.mapMarkers = [];
@@ -1203,7 +1203,7 @@ window.initMap = async function(forceRefresh = false) {
     const stageNames = ['1–30 天', '31–60 天', '61–90 天'];
     const delay = ms => new Promise(res => setTimeout(res, ms));
     let loadedCount = 0;
-    let needsSave = false; // 紀錄是否有新查詢到的座標需要存檔
+    let needsSave = false;
 
     for (const c of customersWithAddress) {
         let lat = c.lat;
@@ -1224,8 +1224,9 @@ window.initMap = async function(forceRefresh = false) {
                 for (let addr of searchQueries) {
                     if (lat && lon) break; 
                     
-                    let query = encodeURIComponent("台灣 " + addr);
-                    let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+                    let query = encodeURIComponent(addr);
+                    // 💡 核心修改：加上 &countrycodes=tw 參數，強制只在台灣境內搜尋
+                    let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&countrycodes=tw`, {
                         headers: { 'Accept-Language': 'zh-TW' }
                     });
                     let data = await res.json();
@@ -1233,19 +1234,17 @@ window.initMap = async function(forceRefresh = false) {
                     if (data && data.length > 0) {
                         lat = data[0].lat;
                         lon = data[0].lon;
-                        // 將查到的座標寫入客戶物件中
                         c.lat = lat;
                         c.lon = lon;
-                        needsSave = true; // 標記需要存檔
+                        needsSave = true;
                     }
-                    await delay(1200); // API 延遲
+                    await delay(1200); 
                 }
             } catch (err) {
                 console.error("API Error", err);
             }
         }
 
-        // 如果有座標 (不管是剛查到的還是以前存好的)，直接放上大頭針
         if (lat && lon) {
             const popupContent = `
                 <b style="font-size:1.1em; color:#1a5fb4;">${window.nbEscape ? window.nbEscape(c.name) : c.name}</b><br>
@@ -1261,7 +1260,6 @@ window.initMap = async function(forceRefresh = false) {
         }
     }
 
-    // 💡 核心機制：如果有查到新座標，自動回存到資料庫並同步 Firebase
     if (needsSave) {
         localStorage.setItem('crm90_v3', JSON.stringify(customers));
         if (window.triggerCloudSave) window.triggerCloudSave();
@@ -1272,11 +1270,12 @@ window.initMap = async function(forceRefresh = false) {
         const group = new L.featureGroup(window.mapMarkers);
         window.mapInstance.fitBounds(group.getBounds().pad(0.1));
     } else {
-        statusEl.textContent = `⚠️ 定位失敗：無可用座標`;
+        statusEl.textContent = `⚠️ 定位失敗：無可用座標，請檢查地址是否正確`;
     }
     
     window.isMapLoading = false;
 };
+
 /* ══════════════════════════════════════════
    90天夥伴跟進系統 JS (修復遺失的部分)
 ══════════════════════════════════════════ */
