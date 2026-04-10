@@ -1162,7 +1162,7 @@ window.showWPToast = function(msg) {
 }
 
 /* ══════════════════════════════════════════
-   地圖系統邏輯 (加入智慧模糊搜尋)
+   地圖系統邏輯 (終極三段式地址解析版)
 ══════════════════════════════════════════ */
 window.mapInstance = null;
 window.mapMarkers = [];
@@ -1190,6 +1190,7 @@ window.initMap = async function(forceRefresh = false) {
 
     window.isMapLoading = true;
     
+    // 清除舊標記
     window.mapMarkers.forEach(m => window.mapInstance.removeLayer(m));
     window.mapMarkers = [];
 
@@ -1211,45 +1212,52 @@ window.initMap = async function(forceRefresh = false) {
     for (const c of customersWithAddress) {
         try {
             statusEl.textContent = `正在定位：${c.name}...`;
-            
-            // 1. 先嘗試用完整地址搜尋
-            let query = encodeURIComponent("台灣" + c.address);
-            let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
-                headers: { 'Accept-Language': 'zh-TW' }
-            });
-            let data = await res.json();
+            let lat = null, lon = null;
 
-            // 2. 智慧模糊搜尋：如果找不到，自動去除門牌、巷弄等太細的資訊重新搜尋
-            if (!data || data.length === 0) {
-                let fallbackAddr = c.address.replace(/[0-9０-９]+[巷弄號樓].*/, '');
-                if (fallbackAddr !== c.address && fallbackAddr.trim() !== '') {
-                    await delay(1000); // 避免被 API 阻擋
-                    query = encodeURIComponent("台灣" + fallbackAddr);
-                    res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
-                        headers: { 'Accept-Language': 'zh-TW' }
-                    });
-                    data = await res.json();
+            // ── 終極三段式搜尋策略 ──
+            let searchQueries = [
+                c.address, // 1. 原始完整地址
+                c.address.replace(/[0-9０-９]+[巷弄號樓Ff].*/, ''), // 2. 拔除巷弄號碼
+                (c.address.match(/.*?[縣市].*?[區鄉鎮市].*?[路街大道段]/) || [])[0] // 3. 強制只擷取到 路/街/大道/段
+            ];
+            
+            // 去除陣列中的空值與重複項，減少不必要的 API 請求
+            searchQueries = [...new Set(searchQueries)].filter(q => q && q.trim() !== '');
+
+            for (let addr of searchQueries) {
+                if (lat && lon) break; // 如果上一個策略已經找到了，就跳出迴圈
+                
+                // 正確的地圖搜尋格式：地址後加上逗號與國家
+                let query = encodeURIComponent(addr + ", 台灣");
+                let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+                    headers: { 'Accept-Language': 'zh-TW' }
+                });
+                let data = await res.json();
+
+                if (data && data.length > 0) {
+                    lat = data[0].lat;
+                    lon = data[0].lon;
                 }
+                
+                // 重要：免費 API 限制每秒只能請求 1 次，否則會被鎖 IP
+                await delay(1200); 
             }
 
-            if (data && data.length > 0) {
-                const lat = data[0].lat;
-                const lon = data[0].lon;
+            // 如果成功拿到座標，就放上大頭針
+            if (lat && lon) {
                 const popupContent = `
                     <b style="font-size:1.1em; color:#1a5fb4;">${window.nbEscape ? window.nbEscape(c.name) : c.name}</b><br>
                     <span style="font-size:0.9em; color:#666;">跟進階段：${stageNames[c.stage] || '未知'}</span><br>
                     <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
-                    <span style="font-size:0.9em;">地址：${window.nbEscape ? window.nbEscape(c.address) : c.address}</span>
+                    <span style="font-size:0.9em;">原始地址：${window.nbEscape ? window.nbEscape(c.address) : c.address}</span>
                 `;
                 const marker = L.marker([lat, lon]).addTo(window.mapInstance).bindPopup(popupContent);
                 window.mapMarkers.push(marker);
                 loadedCount++;
             } else {
-                console.warn(`無法定位地址: ${c.address}`);
+                console.warn(`徹底無法定位地址: ${c.address}`);
             }
             
-            // 重要：免費 API 限制每秒只能請求 1 次
-            await delay(1200); 
         } catch (err) {
             console.error("API Error", err);
         }
@@ -1257,16 +1265,17 @@ window.initMap = async function(forceRefresh = false) {
     
     if (loadedCount > 0) {
         statusEl.textContent = `定位完成！共成功載入 ${loadedCount} 位客戶標記`;
+        // 自動將地圖視角縮放到可以看見所有標記的範圍
         const group = new L.featureGroup(window.mapMarkers);
         window.mapInstance.fitBounds(group.getBounds().pad(0.1));
     } else {
-        statusEl.textContent = `⚠️ 定位失敗：找到的地址皆太過詳細，免費地圖無法辨識`;
+        statusEl.textContent = `⚠️ 定位失敗：免費地圖圖資無法辨識您輸入的地址格式`;
     }
     
     window.isMapLoading = false;
 };
 
-/* ══════════════════════════════════════════
+══════════════════════════════════════════
    90天夥伴跟進系統 JS (修復遺失的部分)
 ══════════════════════════════════════════ */
 (function() {
