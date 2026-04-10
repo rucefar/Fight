@@ -722,6 +722,7 @@ body { margin: 0; padding: 0; overflow-x: hidden; background: #f4f1ea; font-fami
             <div class="n-field"><label>姓名</label><input type="text" id="nf-name" placeholder="請輸入姓名"></div>
             <div class="n-field"><label>加入日期</label><input type="date" id="nf-date"></div>
             <div class="n-field"><label>上線 DD</label><input type="text" id="nf-dd" placeholder="上線 DD 姓名"></div>
+            <div class="n-field"><label>居住地址</label><input type="text" id="nf-address" placeholder="請輸入居住地址"></div>
           </div>
           <div class="n-card n-card-dark">
             <div class="n-card-title">加入初衷與原因</div>
@@ -2000,10 +2001,11 @@ window.loadStickyState = function() {
     document.getElementById('n-delete-btn').style.display = 'block';
     nSetStageToggle(c.stage||0);
     nBuildFormUI(c);
-    document.getElementById('nf-name').value   = c.name||'';
-    document.getElementById('nf-date').value   = c.date||'';
-    document.getElementById('nf-dd').value     = c.dd||'';
-    document.getElementById('nf-reason').value = c.reason||'';
+    document.getElementById('nf-name').value    = c.name||'';
+    document.getElementById('nf-date').value    = c.date||'';
+    document.getElementById('nf-dd').value      = c.dd||'';
+    document.getElementById('nf-address').value = c.address||'';
+    document.getElementById('nf-reason').value  = c.reason||'';
     nShowForm();
   };
 
@@ -2020,7 +2022,7 @@ window.loadStickyState = function() {
   };
 
   function nClearForm() {
-    ['nf-name','nf-date','nf-dd','nf-reason'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    ['nf-name','nf-date','nf-dd','nf-address','nf-reason'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   }
 
   function nSetStageToggle(s) {
@@ -2057,6 +2059,7 @@ window.loadStickyState = function() {
     const data = {
       name, date: document.getElementById('nf-date').value,
       dd: document.getElementById('nf-dd').value.trim(),
+      address: document.getElementById('nf-address').value.trim(),
       reason: document.getElementById('nf-reason').value.trim(),
       stage: nGetSelectedStage(),
       services: [...document.querySelectorAll('#n-service-checks .n-chk.on')].map(el => el.querySelector('span').textContent),
