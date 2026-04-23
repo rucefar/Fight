@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>財富思維診斷問卷</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9933A;
+    --gold-light: #E8B96A;
+    --gold-dim: #7A5520;
+    --ink: #1A1208;
+    --cream: #FAF6EE;
+    --smoke: #8C7A5E;
+    --accent: #2C4A2E;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--ink);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(201,147,58,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(44,74,46,0.15) 0%, transparent 50%);
+    min-height: 100vh;
+    font-family: 'Noto Sans TC', sans-serif;
+    color: var(--cream);
+    padding: 0 0 80px;
+  }
+
+  /* Hero */
+  .hero { position: relative; text-align: center; padding: 70px 24px 52px; overflow: hidden; }
+  .hero::before {
+    content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 1px; height: 60px; background: linear-gradient(to bottom, transparent, var(--gold));
+  }
+  .hero-badge {
+    display: inline-block; border: 1px solid var(--gold-dim); color: var(--gold);
+    font-size: 11px; letter-spacing: 4px; padding: 6px 20px; margin-bottom: 28px; font-weight: 300;
+  }
+  .hero-title {
+    font-family: 'Noto Serif TC', serif; font-weight: 900;
+    font-size: clamp(32px, 7vw, 58px); line-height: 1.15; letter-spacing: -1px;
+    color: var(--cream); margin-bottom: 10px;
+  }
+  .hero-title span { color: var(--gold); font-style: italic; font-family: 'Playfair Display', serif; }
+  .hero-subtitle { font-size: 14px; color: var(--smoke); letter-spacing: 1px; margin-top: 16px; font-weight: 300; }
+  .hero-divider { display: flex; align-items: center; gap: 16px; max-width: 400px; margin: 32px auto 0; }
+  .hero-divider::before, .hero-divider::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim)); }
+  .hero-divider::after { background: linear-gradient(to left, transparent, var(--gold-dim)); }
+  .hero-divider-icon { color: var(--gold); font-size: 18px; }
+
+  /* Profile */
+  .profile-wrap { max-width: 680px; margin: 0 auto 36px; padding: 0 20px; animation: fadeUp 0.4s 0.05s ease both; }
+  .profile-card {
+    background: rgba(250,246,238,0.95);
+    border: 1px solid rgba(201,147,58,0.3); border-left: 3px solid var(--gold);
+    border-radius: 2px; padding: 28px 28px 24px;
+  }
+  .profile-section-label {
+    font-size: 10px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase;
+    margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+  }
+  .profile-section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, rgba(201,147,58,0.4), transparent); }
+  .profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 480px) { .profile-fields { grid-template-columns: 1fr; } }
+  .profile-field label { display: block; font-size: 11px; color: var(--smoke); letter-spacing: 1px; margin-bottom: 6px; font-weight: 500; }
+  .profile-field input {
+    width: 100%; background: rgba(255,255,255,0.7); border: 1px solid rgba(201,147,58,0.25);
+    border-radius: 2px; padding: 10px 14px; font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif; color: var(--ink); outline: none; transition: border-color 0.2s;
+  }
+  .profile-field input:focus { border-color: var(--gold); }
+  .profile-field input::placeholder { color: #B0A090; }
+
+  /* Legend */
+  .legend { max-width: 680px; margin: 0 auto 40px; padding: 0 20px; }
+  .legend-box {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(201,147,58,0.2);
+    border-radius: 2px; padding: 18px 24px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center;
+  }
+  .legend-label { font-size: 11px; color: var(--smoke); letter-spacing: 2px; flex: 0 0 100%; text-align: center; margin-bottom: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--smoke); }
+  .legend-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--ink); background: var(--gold); }
+  .legend-dot.dim { background: rgba(201,147,58,0.2); color: var(--smoke); }
+
+  /* Questions */
+  .questions-wrap { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+  .section-title {
+    font-family: 'Noto Serif TC', serif; font-size: 11px; letter-spacing: 4px; color: var(--gold);
+    text-transform: uppercase; margin-bottom: 28px; display: flex; align-items: center; gap: 14px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--gold-dim), transparent); }
+  .question-card {
+    background: rgba(250,246,238,0.92); border: 1px solid rgba(201,147,58,0.2);
+    border-left: 3px solid transparent; border-radius: 2px; padding: 26px 28px;
+    margin-bottom: 16px; transition: all 0.3s ease; animation: fadeUp 0.5s ease both;
+  }
+  .question-card:hover { border-left-color: var(--gold); background: rgba(250,246,238,1); }
+  .question-card.answered { border-left-color: var(--gold); }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .question-card:nth-child(1){animation-delay:.05s} .question-card:nth-child(2){animation-delay:.10s}
+  .question-card:nth-child(3){animation-delay:.15s} .question-card:nth-child(4){animation-delay:.20s}
+  .question-card:nth-child(5){animation-delay:.25s} .question-card:nth-child(6){animation-delay:.30s}
+  .question-card:nth-child(7){animation-delay:.35s} .question-card:nth-child(8){animation-delay:.40s}
+  .question-card:nth-child(9){animation-delay:.45s}
+  .question-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+  .q-number { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--gold-dim); line-height: 1; flex-shrink: 0; margin-top: -2px; font-style: italic; }
+  .q-meta { flex: 1; }
+  .q-tag { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); background: rgba(201,147,58,0.1); padding: 2px 8px; border-radius: 1px; display: inline-block; margin-bottom: 8px; }
+  .q-text { font-size: 15px; color: #1A1208; line-height: 1.7; font-weight: 500; }
+  .rating-row { display: flex; align-items: center; justify-content: space-between; }
+  .rating-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+  .rating-label-text { font-size: 10px; color: var(--gold-dim); letter-spacing: 0.5px; }
+  .rating-btn {
+    flex: 1; max-width: 52px; height: 48px; background: rgba(201,147,58,0.08);
+    border: 1px solid rgba(201,147,58,0.2); border-radius: 50%; color: var(--smoke);
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+    font-family: 'Noto Sans TC', sans-serif; display: flex; align-items: center; justify-content: center; margin: 0 4px;
+  }
+  .rating-btn:first-child { margin-left: 0; } .rating-btn:last-child { margin-right: 0; }
+  .rating-btn:hover { background: rgba(201,147,58,0.2); border-color: var(--gold); color: var(--gold); transform: scale(1.08); }
+  .rating-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--ink); transform: scale(1.1); box-shadow: 0 0 18px rgba(201,147,58,0.4); }
+
+  /* Open Q */
+  .open-card {
+    background: rgba(250,246,238,0.92); border: 1px solid rgba(201,147,58,0.35);
+    border-left: 3px solid var(--gold); border-radius: 2px; padding: 28px;
+    margin-bottom: 16px; animation: fadeUp 0.5s 0.5s ease both;
+  }
+  .open-number { font-family: 'Playfair Display', serif; font-size: 40px; color: var(--gold); font-style: italic; line-height: 1; margin-bottom: 6px; opacity: 0.6; }
+  .open-q-tag { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; display: block; }
+  .open-text { font-size: 15px; color: var(--ink); line-height: 1.8; margin-bottom: 20px; font-family: 'Noto Serif TC', serif; font-weight: 500; }
+  .open-textarea {
+    width: 100%; background: rgba(255,255,255,0.7); border: 1px solid rgba(201,147,58,0.25);
+    border-radius: 2px; color: var(--ink); font-size: 14px; font-family: 'Noto Sans TC', sans-serif;
+    padding: 14px; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s; line-height: 1.7;
+  }
+  .open-textarea:focus { border-color: var(--gold); }
+  .open-textarea::placeholder { color: #B0A090; font-style: italic; }
+
+  /* Bonus */
+  .bonus-section { max-width: 680px; margin: 32px auto 0; padding: 0 20px; animation: fadeUp 0.5s 0.6s ease both; }
+  .bonus-card {
+    background: linear-gradient(135deg, rgba(44,74,46,0.35) 0%, rgba(26,18,8,0.85) 100%);
+    border: 1px solid rgba(44,74,46,0.5); border-radius: 2px; padding: 36px 32px;
+    position: relative; overflow: hidden;
+  }
+  .bonus-card::before {
+    content: '加碼'; position: absolute; top: -10px; right: 24px;
+    font-size: 80px; font-family: 'Noto Serif TC', serif; font-weight: 900;
+    color: rgba(44,74,46,0.15); line-height: 1; pointer-events: none;
+  }
+  .bonus-tag { display: inline-block; background: var(--accent); color: #7EC882; font-size: 10px; letter-spacing: 3px; padding: 4px 12px; margin-bottom: 16px; border-radius: 1px; }
+  .bonus-title { font-family: 'Noto Serif TC', serif; font-size: 22px; font-weight: 700; color: var(--cream); margin-bottom: 8px; }
+  .bonus-quote { font-size: 13px; color: #7EC882; font-style: italic; margin-bottom: 18px; padding-left: 12px; border-left: 2px solid rgba(126,200,130,0.4); }
+  .bonus-desc { font-size: 13px; color: var(--cream); line-height: 1.8; margin-bottom: 22px; }
+  .bonus-options { display: flex; flex-direction: column; gap: 10px; }
+  .bonus-option {
+    display: flex; align-items: flex-start; gap: 14px; padding: 13px 16px;
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(126,200,130,0.1);
+    border-radius: 2px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .bonus-option:hover { border-color: rgba(126,200,130,0.4); background: rgba(44,74,46,0.2); }
+  .bonus-option.selected { border-color: #7EC882; background: rgba(44,74,46,0.35); }
+  .bonus-checkbox { width: 20px; height: 20px; border: 1.5px solid rgba(126,200,130,0.4); border-radius: 2px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .bonus-option.selected .bonus-checkbox { background: #7EC882; border-color: #7EC882; }
+  .bonus-check-icon { display: none; color: var(--ink); font-size: 12px; font-weight: 700; }
+  .bonus-option.selected .bonus-check-icon { display: block; }
+  .bonus-option-label { font-size: 14px; color: var(--cream); line-height: 1.5; }
+  .bonus-option-sub { font-size: 11px; color: var(--smoke); margin-top: 2px; }
+
+  /* Progress */
+  .progress-wrap { max-width: 680px; margin: 0 auto 36px; padding: 0 20px; }
+  .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .progress-label { font-size: 11px; color: var(--smoke); letter-spacing: 1px; }
+  .progress-count { font-size: 11px; color: var(--gold); font-family: 'Playfair Display', serif; font-style: italic; }
+  .progress-bar { height: 2px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(to right, var(--gold-dim), var(--gold)); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+
+  /* Submit */
+  .submit-wrap { max-width: 680px; margin: 36px auto 0; padding: 0 20px; animation: fadeUp 0.5s 0.7s ease both; }
+  .submit-btn {
+    width: 100%; padding: 20px; background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none; border-radius: 2px; color: var(--ink); font-size: 15px; font-weight: 700;
+    font-family: 'Noto Sans TC', sans-serif; letter-spacing: 3px; cursor: pointer; transition: all 0.3s ease;
+    position: relative; overflow: hidden;
+  }
+  .submit-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transition: left 0.5s; }
+  .submit-btn:hover::before { left: 100%; }
+  .submit-btn:hover { box-shadow: 0 8px 32px rgba(201,147,58,0.4); transform: translateY(-1px); }
+  .submit-note { text-align: center; font-size: 11px; color: var(--gold-dim); margin-top: 14px; letter-spacing: 1px; }
+
+  /* ════ Result Full-Screen Page ════ */
+  .result-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: var(--ink);
+    background-image:
+      radial-gradient(ellipse at 30% 15%, rgba(201,147,58,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 85%, rgba(44,74,46,0.15) 0%, transparent 55%);
+    overflow-y: auto; padding: 60px 20px 80px;
+  }
+  .result-overlay.active { display: block; }
+  .result-inner { max-width: 520px; margin: 0 auto; text-align: center; animation: scaleIn 0.5s ease; }
+  @keyframes scaleIn { from { transform:scale(0.92); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+  /* Icon ring */
+  .result-icon-ring {
+    width: 150px; height: 150px; border-radius: 50%;
+    border: 1px solid rgba(201,147,58,0.3);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    box-shadow: 0 0 60px rgba(201,147,58,0.18), inset 0 0 40px rgba(201,147,58,0.06);
+    position: relative; animation: ringPulse 3s ease-in-out infinite;
+  }
+  @keyframes ringPulse {
+    0%,100% { box-shadow: 0 0 40px rgba(201,147,58,0.15), inset 0 0 30px rgba(201,147,58,0.05); }
+    50%      { box-shadow: 0 0 90px rgba(201,147,58,0.35), inset 0 0 50px rgba(201,147,58,0.12); }
+  }
+  .result-icon-ring::before { content: ''; position: absolute; inset: -10px; border-radius: 50%; border: 1px solid rgba(201,147,58,0.1); }
+  .result-icon-ring::after  { content: ''; position: absolute; inset: -20px; border-radius: 50%; border: 1px solid rgba(201,147,58,0.05); }
+  .result-emoji { font-size: 76px; line-height: 1; }
+
+  .result-tier-badge { display: inline-block; border: 1px solid var(--gold-dim); color: var(--gold); font-size: 10px; letter-spacing: 4px; padding: 5px 20px; margin-bottom: 18px; }
+  .result-score-row { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin-bottom: 8px; }
+  .result-score-num { font-family: 'Playfair Display', serif; font-size: 84px; color: var(--gold); line-height: 1; }
+  .result-score-denom { font-size: 18px; color: var(--smoke); font-weight: 300; }
+  .result-bar-wrap { height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin: 0 auto 32px; max-width: 320px; }
+  .result-bar { height: 100%; border-radius: 4px; background: linear-gradient(to right, var(--gold-dim), var(--gold)); transition: width 1.2s cubic-bezier(.4,0,.2,1) 0.3s; width: 0%; }
+
+  .result-title { font-family: 'Noto Serif TC', serif; font-size: 26px; font-weight: 900; color: var(--cream); margin-bottom: 18px; line-height: 1.35; }
+  .result-title span { color: var(--gold); }
+  .result-desc { font-size: 14px; color: #B8A898; line-height: 2.1; margin-bottom: 32px; text-align: left; padding: 22px 26px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--gold-dim); border-radius: 0 2px 2px 0; }
+
+  /* Breakdown */
+  .result-breakdown { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,147,58,0.12); border-radius: 2px; padding: 22px 24px; margin-bottom: 32px; text-align: left; }
+  .breakdown-title { font-size: 10px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
+  .breakdown-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .breakdown-row:last-child { margin-bottom: 0; }
+  .breakdown-tag { flex-shrink: 0; font-size: 10px; color: var(--smoke); width: 64px; text-align: right; letter-spacing: 0.5px; }
+  .breakdown-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+  .breakdown-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(to right, var(--gold-dim), var(--gold)); transition: width 1s ease; width: 0%; }
+  .breakdown-val { flex-shrink: 0; font-size: 13px; color: var(--gold); font-weight: 700; width: 18px; text-align: right; }
+
+  /* Screenshot box */
+  .screenshot-box {
+    border: 1.5px dashed rgba(201,147,58,0.35); border-radius: 6px;
+    padding: 24px 24px 20px; margin-bottom: 28px; text-align: center;
+    background: rgba(201,147,58,0.04);
+    animation: subtleBlink 2.5s ease-in-out infinite;
+  }
+  @keyframes subtleBlink {
+    0%,100% { border-color: rgba(201,147,58,0.35); }
+    50%      { border-color: rgba(201,147,58,0.7); }
+  }
+  .screenshot-icon { font-size: 32px; margin-bottom: 10px; }
+  .screenshot-title { font-size: 15px; font-weight: 700; color: var(--cream); margin-bottom: 8px; font-family: 'Noto Serif TC', serif; }
+  .screenshot-desc { font-size: 12px; color: var(--smoke); line-height: 1.9; }
+  .screenshot-desc strong { color: var(--gold-light); }
+
+  /* Send status */
+  .send-status { font-size: 12px; color: var(--smoke); text-align: center; margin-bottom: 20px; min-height: 20px; letter-spacing: 1px; }
+  .send-status.ok  { color: #7EC882; }
+  .send-status.err { color: #E07070; }
+
+  .result-close { padding: 16px 48px; background: transparent; border: 1px solid var(--gold-dim); border-radius: 2px; color: var(--gold); font-size: 13px; font-family: 'Noto Sans TC', sans-serif; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+  .result-close:hover { background: rgba(201,147,58,0.1); border-color: var(--gold); }
+
+  @media (max-width: 500px) {
+    .question-card { padding: 20px 16px; }
+    .rating-btn { height: 42px; font-size: 13px; }
+    .hero { padding: 50px 16px 40px; }
+    .bonus-card { padding: 28px 18px; }
+    .result-score-num { font-size: 64px; }
+    .result-icon-ring { width: 120px; height: 120px; }
+    .result-emoji { font-size: 58px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">財富思維自我診斷</div>
+  <h1 class="hero-title">你的財富思維<br><span>準備好了嗎？</span></h1>
+  <p class="hero-subtitle">10 道問題 · 真實檢視 · 找到突破口</p>
+  <div class="hero-divider"><span class="hero-divider-icon">◆</span></div>
+</div>
+
+<!-- Basic Profile -->
+<div class="profile-wrap">
+  <div class="profile-card">
+    <div class="profile-section-label">基本資料</div>
+    <div class="profile-fields">
+      <div class="profile-field">
+        <label>群組暱稱 *</label>
+        <input type="text" id="nickname" placeholder="請填寫你在群組的暱稱" />
+      </div>
+      <div class="profile-field">
+        <label>LINE 或 IG ID *</label>
+        <input type="text" id="contactId" placeholder="e.g. @yourname" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span class="progress-label">完成進度</span>
+    <span class="progress-count" id="progressCount">0 / 9</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-box">
+    <span class="legend-label">評分說明</span>
+    <div class="legend-item"><div class="legend-dot dim">1</div>極不符合</div>
+    <div class="legend-item"><div class="legend-dot dim">2</div>較不符合</div>
+    <div class="legend-item"><div class="legend-dot dim">3</div>部分符合</div>
+    <div class="legend-item"><div class="legend-dot dim">4</div>大致符合</div>
+    <div class="legend-item"><div class="legend-dot">5</div>完全符合</div>
+  </div>
+</div>
+
+<!-- Questions -->
+<div class="questions-wrap">
+  <div class="section-title">核心思維診斷</div>
+  <div id="questions-container"></div>
+
+  <!-- Q10 -->
+  <div class="open-card">
+    <div class="open-number">10</div>
+    <span class="open-q-tag">關鍵轉折</span>
+    <p class="open-text">如果現在有個工具、方法或資源，能幫助你實現上述的財富目標與夢想，你會想進一步了解嗎？是什麼讓你猶豫，或者是什麼讓你心動？</p>
+    <textarea class="open-textarea" id="openAnswer" placeholder="請寫下你真實的想法……（例如：我一直想找到方法，但不知道從何開始）"></textarea>
+  </div>
+</div>
+
+<!-- Bonus -->
+<div class="bonus-section">
+  <div class="bonus-card">
+    <span class="bonus-tag">加碼活動 · 實戰演練</span>
+    <h2 class="bonus-title">財富流桌遊體驗場</h2>
+    <p class="bonus-quote">「財富是談出來的，更是玩出來的！」</p>
+    <p class="bonus-desc">光有理論還不夠，你需要一個模擬人生的沙盤。在桌遊中體驗財務決策、建立管道、突破鼠圈——這是最快理解財富邏輯的方式。</p>
+    <div class="bonus-options">
+      <div class="bonus-option" onclick="toggleBonus(this)" data-value="場次一 5/16 10:00 伯朗咖啡中山門市">
+        <div class="bonus-checkbox"><span class="bonus-check-icon">✓</span></div>
+        <div><div class="bonus-option-label">📅 場次一：5/16（五）10:00</div><div class="bonus-option-sub">📍 伯朗咖啡中山門市</div></div>
+      </div>
+      <div class="bonus-option" onclick="toggleBonus(this)" data-value="場次二 5/25 18:30 伯朗咖啡科大概念店">
+        <div class="bonus-checkbox"><span class="bonus-check-icon">✓</span></div>
+        <div><div class="bonus-option-label">📅 場次二：5/25（日）18:30</div><div class="bonus-option-sub">📍 伯朗咖啡科大概念店</div></div>
+      </div>
+      <div class="bonus-option" onclick="toggleBonus(this)" data-value="下次通知">
+        <div class="bonus-checkbox"><span class="bonus-check-icon">✓</span></div>
+        <div><div class="bonus-option-label">🔔 目前時間不克參加</div><div class="bonus-option-sub">請列入下次活動通知名單</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Submit -->
+<div class="submit-wrap">
+  <button class="submit-btn" onclick="submitForm()">提交診斷結果 →</button>
+  <p class="submit-note">填寫完成後將顯示你的財富思維評估報告</p>
+</div>
+
+<!-- ══ Result Full Page ══ -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-inner">
+
+    <div class="result-icon-ring">
+      <span class="result-emoji" id="resultEmoji">🌱</span>
+    </div>
+
+    <div class="result-tier-badge" id="resultTierBadge">財富思維等級</div>
+
+    <div class="result-score-row">
+      <span class="result-score-num" id="resultScoreNum">0</span>
+      <span class="result-score-denom">/ 45 分</span>
+    </div>
+    <div class="result-bar-wrap"><div class="result-bar" id="resultBar"></div></div>
+
+    <h2 class="result-title" id="resultTitle"></h2>
+    <div class="result-desc" id="resultDesc"></div>
+
+    <div class="result-breakdown">
+      <div class="breakdown-title">各題得分一覽</div>
+      <div id="breakdownRows"></div>
+    </div>
+
+    <!-- Screenshot nudge -->
+    <div class="screenshot-box">
+      <div class="screenshot-icon">📸</div>
+      <div class="screenshot-title">截圖保存你的診斷結果！</div>
+      <div class="screenshot-desc">
+        長按畫面或截圖儲存這個結果頁<br>
+        <strong>分享給朋友，看看他們的財富思維幾分？</strong><br>
+        你的結果已同步傳送給主辦方，期待與你深入交流 🙌
+      </div>
+    </div>
+
+    <div class="send-status" id="sendStatus"></div>
+    <button class="result-close" onclick="closeResult()">返回問卷</button>
+  </div>
+</div>
+
+<script>
+// ★★★ 把你的 Google Apps Script 網址貼在這裡 ★★★
+const SHEET_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+const questionsData = [
+  { num:1, tag:'創造者思維', text:'我相信「我創造我的人生」，而非「人生只是發生在我身上」——我是自己命運的主導者。' },
+  { num:2, tag:'明確目標',   text:'我清楚知道「財務自由」對我而言的具體數字：包括目標金額、達成年限與每月所需現金流。' },
+  { num:3, tag:'收入結構',   text:'我目前的收入來源中，非工資的被動收入（如投資、版稅、租金等）佔比已超過 20%。' },
+  { num:4, tag:'學習投資',   text:'我每月固定撥出至少 10% 的收入，用於投資自己的大腦——講座、書籍、課程或 mentorship。' },
+  { num:5, tag:'環境圈子',   text:'我常往來的 5 位朋友，他們對財富的認知、生活狀態與格局，是我真心嚮往的目標。' },
+  { num:6, tag:'解決問題',   text:'面對困難或挫折時，我的第一反應是「如何解決」，而非抱怨環境、他人或運氣。' },
+  { num:7, tag:'行動勇氣',   text:'即便感到恐懼或不確定，我依然願意踏出舒適圈，為長遠的財務目標採取實際行動。' },
+  { num:8, tag:'金錢管理',   text:'我有完善的記帳習慣，能清楚掌握每一分錢的流向，並依「先儲蓄後消費」的原則生活。' },
+  { num:9, tag:'管道意識',   text:'我深信「建立能持續產生收益的管道」遠比「用時間與體力換錢」更能創造真正的財富自由。' },
+];
+
+const TIERS = [
+  { max:18, emoji:'🌱', badge:'種子覺醒者', title:'財富種子，<span>等待破土</span>',
+    desc:'你已踏出自我覺察的第一步，這份誠實非常珍貴。現在的你處於思維轉型的起點——只要找到對的方向與資源，改變可以比你想像的快得多。種子需要陽光、土壤與耕耘，你的財富旅程正要開始。' },
+  { max:27, emoji:'🌅', badge:'破曉行動者', title:'黎明將至，<span>曙光初現</span>',
+    desc:'你已具備部分正確的財富觀念，但仍有幾個關鍵缺口需要補強。這個階段最重要的是：找到對的環境、導師與工具，讓成長速度倍增。黎明前的你，已感受到光的方向。' },
+  { max:36, emoji:'🔮', badge:'水晶引導者', title:'洞見清晰，<span>方向篤定</span>',
+    desc:'你的財富思維已頗為成熟！你具備清晰的洞察力，知道自己要走的路。現在的關鍵是：加速連結對的人與機會，讓資源為你工作，讓影響力不斷擴大。' },
+  { max:42, emoji:'🦁', badge:'雄獅開拓者', title:'魄力十足，<span>勇於開疆</span>',
+    desc:'你不只有財富思維，更有行動力！你清楚方向、勇於突破、懂得管理金錢。現在的你需要更大的舞台與更強的夥伴網絡，讓你的格局翻倍。' },
+  { max:45, emoji:'👑', badge:'王者創造者', title:'頂峰思維，<span>王者格局</span>',
+    desc:'恭喜你！你已具備頂尖財富思維與完整的行動藍圖。你的下一步不只是財富自由，而是影響更多人、打造更大的事業版圖與深遠的遺澤。' },
+];
+
+const answers = {};
+
+function renderQuestions() {
+  const c = document.getElementById('questions-container');
+  questionsData.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${q.num}`;
+    card.style.animationDelay = (i * 0.05 + 0.05).toFixed(2) + 's';
+    card.innerHTML = `
+      <div class="question-header">
+        <div class="q-number">${String(q.num).padStart(2,'0')}</div>
+        <div class="q-meta">
+          <span class="q-tag">${q.tag}</span>
+          <p class="q-text">${q.text}</p>
+        </div>
+      </div>
+      <div class="rating-row">
+        ${[1,2,3,4,5].map(n=>`<button class="rating-btn" onclick="selectAnswer(${q.num},${n},this)">${n}</button>`).join('')}
+      </div>
+      <div class="rating-labels">
+        <span class="rating-label-text">極不符合</span>
+        <span class="rating-label-text">極符合</span>
+      </div>`;
+    c.appendChild(card);
+  });
+}
+
+function selectAnswer(qNum, val, btn) {
+  answers[qNum] = val;
+  document.getElementById(`card-${qNum}`).querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById(`card-${qNum}`).classList.add('answered');
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.keys(answers).length;
+  document.getElementById('progressCount').textContent = `${done} / 9`;
+  document.getElementById('progressFill').style.width = `${(done/9)*100}%`;
+}
+
+function toggleBonus(el) { el.classList.toggle('selected'); }
+
+function submitForm() {
+  const nickname  = document.getElementById('nickname').value.trim();
+  const contactId = document.getElementById('contactId').value.trim();
+  if (!nickname || !contactId) { alert('請先填寫群組暱稱與 LINE / IG ID'); return; }
+  if (Object.keys(answers).length < 9) { alert(`還有 ${9 - Object.keys(answers).length} 題尚未填寫，請完成所有評分題目後再提交。`); return; }
+
+  const total    = Object.values(answers).reduce((a,b)=>a+b,0);
+  const tier     = TIERS.find(t=>total<=t.max) || TIERS[TIERS.length-1];
+  const openAns  = document.getElementById('openAnswer').value.trim();
+  const bonusSel = [...document.querySelectorAll('.bonus-option.selected')].map(el=>el.dataset.value).join('、') || '未選擇';
+
+  // Populate result
+  document.getElementById('resultEmoji').textContent     = tier.emoji;
+  document.getElementById('resultTierBadge').textContent = tier.badge;
+  document.getElementById('resultScoreNum').textContent  = total;
+  document.getElementById('resultTitle').innerHTML       = tier.title;
+  document.getElementById('resultDesc').textContent      = tier.desc;
+
+  // Breakdown
+  const bRows = document.getElementById('breakdownRows');
+  bRows.innerHTML = '';
+  questionsData.forEach(q => {
+    const v = answers[q.num] || 0;
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `
+      <span class="breakdown-tag">${q.tag}</span>
+      <div class="breakdown-bar-bg"><div class="breakdown-bar-fill" data-w="${(v/5)*100}%" style="width:0%"></div></div>
+      <span class="breakdown-val">${v}</span>`;
+    bRows.appendChild(row);
+  });
+
+  // Show
+  const overlay = document.getElementById('resultOverlay');
+  overlay.classList.add('active');
+  overlay.scrollTop = 0;
+  document.getElementById('sendStatus').textContent = '';
+  document.getElementById('sendStatus').className = 'send-status';
+
+  setTimeout(() => {
+    document.getElementById('resultBar').style.width = `${(total/45)*100}%`;
+    document.querySelectorAll('.breakdown-bar-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }, 200);
+
+  sendToSheet({ nickname, contactId, answers, total, tier: tier.badge, openAns, bonusSel });
+}
+
+function closeResult() { document.getElementById('resultOverlay').classList.remove('active'); }
+
+async function sendToSheet(data) {
+  const status = document.getElementById('sendStatus');
+  if (!SHEET_URL || SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    status.textContent = '（尚未設定 Google Sheet，資料僅顯示於畫面）';
+    return;
+  }
+  try {
+    const payload = {
+      timestamp: new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}),
+      nickname: data.nickname, contactId: data.contactId,
+      total: data.total, tier: data.tier,
+      q1:data.answers[1]||'', q2:data.answers[2]||'', q3:data.answers[3]||'',
+      q4:data.answers[4]||'', q5:data.answers[5]||'', q6:data.answers[6]||'',
+      q7:data.answers[7]||'', q8:data.answers[8]||'', q9:data.answers[9]||'',
+      openAnswer: data.openAns, boardgame: data.bonusSel,
+    };
+    await fetch(SHEET_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    status.textContent = '✓ 資料已成功送出！';
+    status.className = 'send-status ok';
+  } catch(e) {
+    status.textContent = '⚠ 傳送失敗，請截圖後告知主辦方。';
+    status.className = 'send-status err';
+  }
+}
+
+renderQuestions();
+</script>
+</body>
+</html>
