@@ -1061,6 +1061,33 @@ body::after {
   <div class="submit-area" id="submit-area">
     <h3 class="submit-title">您已完成所有題目</h3>
     <p class="submit-desc">點擊下方按鈕，您的填答結果將自動記錄，<br>並顯示給您一段給自己的話。</p>
+
+    <!-- URL 設定欄 -->
+    <div id="url-config" style="margin-bottom:1.8rem;">
+      <label style="display:block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.18em;
+                    color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:.6rem;">
+        ⚙️ &nbsp;貼入您的 Google Apps Script URL（只需設定一次）
+      </label>
+      <div style="display:flex;gap:.5rem;max-width:540px;margin:0 auto;">
+        <input id="script-url-input" type="text"
+          placeholder="https://script.google.com/macros/s/…/exec"
+          style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
+                 border-radius:1px;padding:.7rem 1rem;color:#fff;font-family:var(--font-mono);
+                 font-size:.7rem;outline:none;letter-spacing:.02em;min-width:0;"
+          oninput="saveUrl(this.value)">
+        <button onclick="testConnection()"
+          style="background:transparent;border:1px solid var(--gold);color:var(--gold);
+                 font-family:var(--font-mono);font-size:.62rem;padding:.7rem 1rem;border-radius:1px;
+                 cursor:pointer;white-space:nowrap;letter-spacing:.08em;transition:all .2s;"
+          onmouseover="this.style.background='rgba(200,168,75,.15)'"
+          onmouseout="this.style.background='transparent'">
+          測試連線
+        </button>
+      </div>
+      <div id="url-status" style="margin-top:.55rem;font-family:var(--font-mono);font-size:.62rem;
+                                   letter-spacing:.08em;min-height:1.2rem;text-align:center;"></div>
+    </div>
+
     <button class="btn-submit" id="btn-submit" onclick="submitForm()">
       <div class="spinner" id="spinner"></div>
       <span id="btn-text">✦ &nbsp;送出並查看結果</span>
@@ -1102,30 +1129,57 @@ body::after {
      JAVASCRIPT
 ══════════════════════════════ -->
 <script>
-// ─────────────────────────────────────────────
-// ⚙️  設定區：將此 URL 替換為您的 Apps Script URL
-// ─────────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPf6luvHMiG-ohZI7gZaqw-nK-3OzqpsaN3i_OghjEQ8eoQx-DbrcBcd6RmViWn_5D/exec";
-// 範例：'https://script.google.com/macros/s/AKfycb.../exec'
-
 // ── 日期 ──
 const today = new Date();
 document.getElementById('f-date').value =
   `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
 
-// ── 選項點選邏輯 ──
-let answers = {};
+// ── URL 持久化（存在 localStorage）──
+const URL_KEY = 'gas_url_questionnaire';
+let scriptUrl = localStorage.getItem(URL_KEY) || '';
+if (scriptUrl) {
+  document.getElementById('script-url-input').value = scriptUrl;
+  setUrlStatus('✓ 已載入上次設定的 URL', 'rgba(100,220,120,.8)');
+}
 
+function saveUrl(val) {
+  scriptUrl = val.trim();
+  localStorage.setItem(URL_KEY, scriptUrl);
+  setUrlStatus('', '');
+}
+
+function setUrlStatus(msg, color) {
+  const el = document.getElementById('url-status');
+  el.textContent = msg;
+  el.style.color = color;
+}
+
+// ── 測試連線（GET 請求確認 Apps Script 是否活著）──
+async function testConnection() {
+  const url = document.getElementById('script-url-input').value.trim();
+  if (!url) { setUrlStatus('⚠ 請先貼入 Apps Script URL', '#f4c878'); return; }
+  setUrlStatus('測試中…', 'rgba(255,255,255,.4)');
+  try {
+    // 用 no-cors GET，若不拋錯代表 URL 可到達
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
+    setUrlStatus('✓ 連線成功，URL 有效！', 'rgba(100,220,120,.85)');
+    scriptUrl = url;
+    localStorage.setItem(URL_KEY, url);
+  } catch(e) {
+    setUrlStatus('✗ 連線失敗，請確認 URL 正確且已部署', '#f4a0a0');
+  }
+}
+
+// ── 選項點選 ──
+let answers = {};
 document.querySelectorAll('.q-opt').forEach(opt => {
   opt.addEventListener('click', () => {
     const card = opt.closest('.q-card');
     const qn   = card.dataset.q;
-
     card.querySelectorAll('.q-opt').forEach(o => o.classList.remove('sel'));
     opt.classList.add('sel');
     opt.querySelector('input').checked = true;
     card.classList.add('answered');
-
     answers[`Q${qn}`] = opt.dataset.v;
     updateProgress();
   });
@@ -1136,11 +1190,9 @@ function updateProgress() {
   const total    = 8;
   const answered = Object.keys(answers).length;
   const pct      = Math.round(answered / total * 100);
-
   document.getElementById('prog-fill').style.width  = pct + '%';
   document.getElementById('prog-label').textContent = `${answered} / ${total} 題`;
   document.getElementById('prog-pct').textContent   = pct + '%';
-
   if (answered === total) {
     const area = document.getElementById('submit-area');
     area.classList.add('show');
@@ -1148,56 +1200,50 @@ function updateProgress() {
   }
 }
 
-// ── 送出 ──
+// ── 送出（使用 FormData，完全繞過 CORS preflight）──
 async function submitForm() {
   const btn  = document.getElementById('btn-submit');
   const spin = document.getElementById('spinner');
   const txt  = document.getElementById('btn-text');
+  const url  = (document.getElementById('script-url-input').value.trim()) || scriptUrl;
 
-  // 收集資料
-  const payload = {
-    timestamp:  new Date().toLocaleString('zh-TW'),
-    name:       document.getElementById('f-name').value    || '（未填）',
-    job:        document.getElementById('f-job').value     || '（未填）',
-    contact:    document.getElementById('f-contact').value || '（未填）',
-    date:       document.getElementById('f-date').value,
-    ...answers
-  };
-
-  // 驗證：至少填姓名
+  // 驗證姓名
   if (!document.getElementById('f-name').value.trim()) {
-    showToast('請填寫姓名後再送出', 'error');
+    showToast('⚠ 請填寫姓名後再送出', 'error');
     document.getElementById('f-name').focus();
     return;
   }
 
-  // loading 狀態
+  // 驗證 URL
+  if (!url || !url.startsWith('https://script.google.com')) {
+    showToast('⚠ 請先貼入正確的 Apps Script URL', 'error');
+    document.getElementById('script-url-input').focus();
+    return;
+  }
+
+  // Loading 狀態
   btn.disabled = true;
   spin.style.display = 'block';
   txt.textContent = '傳送中…';
 
-  // 判斷是否已設定 URL
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    // Demo 模式（尚未串接）
-    await new Promise(r => setTimeout(r, 1200));
-    onSuccess();
-    return;
-  }
+  // 組 FormData（Apps Script 原生支援，無 CORS 問題）
+  const fd = new FormData();
+  fd.append('timestamp', new Date().toLocaleString('zh-TW'));
+  fd.append('name',      document.getElementById('f-name').value    || '（未填）');
+  fd.append('job',       document.getElementById('f-job').value     || '（未填）');
+  fd.append('contact',   document.getElementById('f-contact').value || '（未填）');
+  fd.append('date',      document.getElementById('f-date').value);
+  Object.entries(answers).forEach(([k, v]) => fd.append(k, v));
 
   try {
-    await fetch(APPS_SCRIPT_URL, {
-      method:  'POST',
-      mode:    'no-cors',   // Apps Script 需要 no-cors
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload)
-    });
-    // no-cors 模式下永遠是 opaque response，視為成功
+    // mode: 'no-cors' + FormData = 可成功送達 Apps Script，不被 CORS 擋
+    await fetch(url, { method: 'POST', mode: 'no-cors', body: fd });
     onSuccess();
-  } catch (err) {
+  } catch(err) {
     btn.disabled = false;
     spin.style.display = 'none';
     txt.textContent = '✦  送出並查看結果';
-    showToast('連線失敗，請稍後再試', 'error');
+    showToast('✗ 送出失敗，請檢查網路或 URL', 'error');
   }
 }
 
@@ -1206,15 +1252,14 @@ function onSuccess() {
   const panel = document.getElementById('result-panel');
   panel.classList.add('show');
   setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-  showToast('✦ 填答已成功記錄', 'success');
+  showToast('✦ 填答已成功寫入試算表', 'success');
 }
 
-// ── Toast ──
 function showToast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className   = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 4000);
+  setTimeout(() => t.classList.remove('show'), 4500);
 }
 </script>
 </body>
